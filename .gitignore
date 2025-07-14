@@ -1,0 +1,35 @@
+# Node modules (ha npm-et használsz)
+node_modules/
+
+# Build kimenetek
+dist/
+coverage/
+
+# Lokális környezeti fájlok
+.env
+.env.local
+
+# BAS/VS Code specifikus fájlok
+.vscode/
+.history/
+.project/
+.settings/
+
+# SAPUI5 runtime és UI5 Tooling fájlok
+.webapp/localService/metadata.xml
+.webapp/test/
+
+# Odata-mock server állományok (ha ideiglenesek)
+mockserver/
+
+# UI5 tooling cache
+.ui5/
+
+# Mac / Windows saját fájlai
+.DS_Store
+Thumbs.db
+
+# Log fájlok
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,84 @@
+<mvc:View
+    controllerName="bbroadr.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+
+    <Page id="page" title="{i18n>title}">
+        <VBox id="_IDGenVBox">
+            <Table
+                id="headerTable"
+                items="{path: '/HeaderSet'}"
+                mode="MultiSelect"
+                inset="false">
+                <headerToolbar>
+                    <Toolbar id="Toolbar">
+                        <ToolbarSpacer id="ToolbarSpacer"/>
+
+
+                        <Label id="statusL" text="Státusz"/>
+                        <Input id="statusFilter" placeholder="Pl.: Új" liveChange="onFilterChange"/>
+                        <Label id="zyearL" text="Évszám"/>
+                        <Input id="yearFilter" placeholder="Pl.: 2025" liveChange="onFilterChange"/>
+                        <Label id="zmonthL" text="Hónap"/>
+                        <Input id="monthFilter" placeholder="Pl.: 07" liveChange="onFilterChange"/>
+                        <Label id="licenseplateL" text="Rendszám"/>
+                        <Input id="plateFilter" placeholder="ABC123" liveChange="onFilterChange"/>
+
+
+                        <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
+                        <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column id="StatusC">                
+                        <Text id="StatusT" text="Státusz"/>
+                    </Column>
+                    <Column id="ZyearC">
+                        <Text id="ZyearT" text="Évszám"/>
+                    </Column>
+                    <Column id="ZmonthC">
+                        <Text id="ZmonthT" text="Hónap"/>
+                    </Column>
+                    <Column id="LicenseplateC">
+                        <Text id="LicenseplateT" text="Rendszám"/>
+                    </Column>
+                    <Column id="KmStartC">
+                        <Text id="KmStartT" text="Km állás hó elején"/>
+                    </Column>
+                    <Column id="KmEndC">
+                        <Text id="KmEndT" text="Km állás hó végén"/>
+                    </Column>
+                    <Column id="AvgFuelPriceC">
+                        <Text id="AvgFuelPriceT" text="Átlagos üzemanyagár"/>
+                    </Column>
+                    <Column id="AvgFuelCurrencyC">
+                        <Text id="AvgFuelCurrencyT" text="Pénznem"/>
+                    </Column>
+                    <Column id="NoteC">
+                        <Text id="NoteT" text="Jegyzet"/>
+                    </Column>
+                    <Column id="ItemsCountC">                
+                        <Text id="ItemsCountT" text="Tételek száma"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem id="ColumnListItem" press="onItemPress" type="Active">
+                        <cells>
+                            <Text id="StatusCell" text="{Status}"/>
+                            <Text id="ZyearCell" text="{Zyear}"/>
+                            <Text id="ZmonthCell" text="{Zmonth}"/>
+                            <Text id="LicenseplateCell" text="{Licenseplate}"/>
+                            <Text id="KmStartCell" text="{KmStart}"/>
+                            <Text id="KmEndCell" text="{KmEnd}"/>
+                            <Text id="AvgFuelPriceCell" text="{ path: 'AvgFuelPrice', formatter: '.formatAvgFuelPrice' }"/>
+                            <Text id="AvgFuelCurrencyCell" text="{AvgFuelCurrency}"/>
+                            <Text id="NoteCell" text="{Note}"/>
+                            <Text id="ItemsCountCell" text="{ path: '.', formatter: '.formatItemCount' }"/> <!-- Get_itemset_entityset$?filter=(sor szerint zyear, zmonth, licenseplate)$?count    hogy implementálnád?></!-->
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </VBox>
+    </Page>
+</mvc:View>
