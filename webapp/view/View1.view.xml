@@ -3,7 +3,6 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m">
 
-
     <Page id="page" title="{i18n>title}">
         <VBox id="_IDGenVBox">
             <Table
@@ -11,21 +10,14 @@
                 items="{path: '/HeaderSet'}"
                 mode="MultiSelect"
                 inset="false">
+               
                 <headerToolbar>
                     <Toolbar id="Toolbar">
                         <ToolbarSpacer id="ToolbarSpacer"/>
-
-
-                        <Label id="statusL" text="Státusz"/>
-                        <Input id="statusFilter" placeholder="Pl.: Új" liveChange="onFilterChange"/>
-                        <Label id="zyearL" text="Évszám"/>
-                        <Input id="yearFilter" placeholder="Pl.: 2025" liveChange="onFilterChange"/>
-                        <Label id="zmonthL" text="Hónap"/>
-                        <Input id="monthFilter" placeholder="Pl.: 07" liveChange="onFilterChange"/>
-                        <Label id="licenseplateL" text="Rendszám"/>
-                        <Input id="plateFilter" placeholder="ABC123" liveChange="onFilterChange"/>
-
-
+                        <SearchField id="StatusSF" placeholder="Státusz" liveChange="handleStatus"/>
+                        <SearchField id="ZYearSF" placeholder="Évszám" liveChange="handleZYear"/>
+                        <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleZmonth"/>
+                        <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleLicenseplate"/>
                         <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
                     </Toolbar>
