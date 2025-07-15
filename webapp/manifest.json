@@ -108,7 +108,7 @@
         },
         {
           "name": "RouteItemsView",
-          "pattern": "ItemsView",
+          "pattern": "ItemsView/{Zyear}/{Zmonth}/{Licenseplate}",
           "target": "TargetItemsView"
         }
       ],

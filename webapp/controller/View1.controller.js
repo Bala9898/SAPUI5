@@ -21,7 +21,11 @@ sap.ui.define([
             const oData = oContext.getObject();
             const sPath = oContext.getPath();
             const router = UIComponent.getRouterFor(this);
-            router.navTo("RouteItemsView", {});
+            router.navTo("RouteItemsView", {
+                Zyear: oData.Zyear,
+                Zmonth: oData.Zmonth,
+                Licenseplate: oData.Licenseplate
+            });
         },
 
         onGroupApprove() {
@@ -33,6 +37,7 @@ sap.ui.define([
         },
 
         _showReasonDialog(sAction) {
+            
             const oTable = this.byId("headerTable");
             const aSelected = oTable.getSelectedItems();
 
@@ -60,12 +65,36 @@ sap.ui.define([
                 beginButton: new Button({
                     text: "OK",
                     enabled: false,
-                    press: () => {
+                    press: async () => {
                         const sReason = oTextArea.getValue().trim();
                         this._oReasonDialog.close();
-                        MessageToast.show(sAction + " végrehajtva az indoklással: " + sReason);
-                    }
-                }),
+                    
+                        sap.ui.core.BusyIndicator.show(0);
+                        
+                        const oModel   = this.getView().getModel();
+                        const sGroupId    = "massAction";
+                    
+                        aSelected.forEach(oItem => {
+                            const oCtx = oItem.getBindingContext(); // V4 binding context!
+                            
+                            // Módosítás a lokális contexten
+                            oCtx.setProperty("Note", sReason, sGroupId);
+                            //oCtx.setProperty("Status", sAction);
+                    
+                            // V4: módosítás elküldése a szerverre
+                            //aPromises.push(oCtx.submitChanges());
+                        });
+                    
+                        try {
+                            await oModel.submitBatch(sGroupId);
+                            MessageToast.show(`${aSelected.length} sor sikeresen ${sAction === "Jóváhagyás" ? "jóváhagyva" : "elutasítva"}.`);
+                        } catch (oErr) {
+                            MessageBox.error("Hiba történt a mentés során.\nRészletek: " + (oErr?.message || oErr));
+                        } finally {
+                            sap.ui.core.BusyIndicator.hide();
+                        }
+                    }                    
+                }),                                    
                 endButton: new Button({
                     text: "Mégse",
                     press: () => {
@@ -88,11 +117,35 @@ sap.ui.define([
             }
             return (n*10).toFixed(2);
         },
-        
+
         handleStatus : function() {
             var oView = this.getView();
-            var sValue = oView.byId("StatusSF").getValue();
-            var oFilter = new Filter("Status", FilterOperator.Contains, sValue)
+            var sValue = oView.byId("StatusSF").getValue().toUpperCase();
+            var oFilter = new Filter("Status", FilterOperator.Contains, sValue);
+            
+            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
+        },
+
+        handleZYear : function() {
+            var oView = this.getView();
+            var sValue = oView.byId("ZYearSF").getValue();
+            var oFilter = new Filter("Zyear", FilterOperator.Contains, sValue);
+            
+            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
+        },
+
+        handleZMonth : function() {
+            var oView = this.getView();
+            var sValue = oView.byId("ZMonthSF").getValue();
+            var oFilter = new Filter("Zmonth", FilterOperator.Contains, sValue);
+            
+            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
+        },
+
+        handleLicenseplate : function() {
+            var oView = this.getView();
+            var sValue = oView.byId("LicenseplateSF").getValue().toUpperCase();
+            var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
             
             oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
         }
