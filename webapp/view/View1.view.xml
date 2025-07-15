@@ -50,9 +50,6 @@
                     <Column id="NoteC">
                         <Text id="NoteT" text="Jegyzet"/>
                     </Column>
-                    <Column id="ItemsCountC">                
-                        <Text id="ItemsCountT" text="Tételek száma"/>
-                    </Column>
                 </columns>
                 <items>
                     <ColumnListItem id="ColumnListItem" press="onItemPress" type="Active">
@@ -66,7 +63,6 @@
                             <Text id="AvgFuelPriceCell" text="{ path: 'AvgFuelPrice', formatter: '.formatAvgFuelPrice' }"/>
                             <Text id="AvgFuelCurrencyCell" text="{AvgFuelCurrency}"/>
                             <Text id="NoteCell" text="{Note}"/>
-                            <Text id="ItemsCountCell" text="{ path: '.', formatter: '.formatItemCount' }"/> <!-- Get_itemset_entityset$?filter=(sor szerint zyear, zmonth, licenseplate)$?count    hogy implementálnád?></!-->
                         </cells>
                     </ColumnListItem>
                 </items>

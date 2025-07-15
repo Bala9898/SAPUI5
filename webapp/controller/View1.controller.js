@@ -5,8 +5,11 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/m/Dialog",
     "sap/m/TextArea",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator",
+	"sap/ui/model/FilterType",
     "sap/m/Button"
-], (Controller, UIComponent, MessageToast, MessageBox, Dialog, TextArea, Button) => {
+], (Controller, UIComponent, MessageToast, MessageBox, Dialog, TextArea, Filter, FilterOperator, FilterType, Button) => {
     "use strict";
 
     return Controller.extend("bbroadr.controller.View1", {
@@ -86,21 +89,12 @@ sap.ui.define([
             return (n*10).toFixed(2);
         },
         
-        handleStatus : function(oEvent) {
-            var oHeadCIL = this.getView().byId("ColumnListItem");
-            var oItemsBindig = oHeadCIL.getBinding("items");
-
-            var sValue = oEvent.oSource.getValue();
-
-            if (sValue === "" || sValue === null || sValue === undefined) {
-                oItemsBindig.filter([]);
-                return;
-            }
-
-            var oStatusFilter = new sap.ui.model.Filter("StatusCell", sap.ui.model.FilterOperator.Contains, sValue);
-            var oFilter = new sap.ui.model.Filter([oStatusFilter], false);
-
-            oItemsBindig.filter(oFilter);
+        handleStatus : function() {
+            var oView = this.getView();
+            var sValue = oView.byId("StatusSF").getValue();
+            var oFilter = new Filter("Status", FilterOperator.Contains, sValue)
+            
+            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
         }
        
     });

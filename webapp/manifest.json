@@ -20,19 +20,11 @@
         "uri": "/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV/",
         "type": "OData",
         "settings": {
-          "annotations": ["localAnnotations"],
           "localUri": "localService/mainService/metadata.xml",
           "odataVersion": "2.0"
         }
       }
     }
-  },
-  "localAnnotations": {
-      "uri": "annotations/annotation.xml",
-      "type": "ODataAnnotation",
-      "settings": {
-        "localUri": "annotations/annotation.xml"
-      }
   },
   "sap.ui": {
     "technology": "UI5",
@@ -104,8 +96,7 @@
         "type": "View",
         "viewType": "XML",
         "path": "bbroadr.view",
-        "async": true,
-        "viewPath": "bbroadr.view"
+        "async": true
       },
       "routes": [
         {
