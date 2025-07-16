@@ -20,7 +20,7 @@
                         <SearchField id="ZYearSF" placeholder="Évszám" liveChange="handleZYear"/>
                         <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleZmonth"/>
                         <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleLicenseplate"/>
-                        <!--Létrehozás kell még-->
+                        <Button id="CreateHeadButton" text="Új sor" press="onCreateHead"/>
                         <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
                     </Toolbar>
