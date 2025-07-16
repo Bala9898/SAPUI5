@@ -12,6 +12,7 @@ sap.ui.define([
         oRouter.getRoute("RouteItemsView").attachPatternMatched(this._onRouteMatched, this);
       },
       
+      //Igazából filterezés segítségével jelenítjük meg a megfelelő tételeket az adott fejsorhoz
       _onRouteMatched: function (oEvent) {
           var oArgs = oEvent.getParameter("arguments");
           var sZyear = oArgs.Zyear;

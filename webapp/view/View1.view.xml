@@ -5,12 +5,14 @@
 
     <Page id="page" title="{i18n>title}">
         <VBox id="_IDGenVBox">
+            <!--Tábla létrehozása az adatokhoz-->
             <Table
                 id="headerTable"
                 items="{path: '/HeaderSet'}"
                 mode="MultiSelect"
                 inset="false">
                
+                <!--Fejléc rész szűréshez, létrehozáshoz, elfogadás- és elutasításhoz-->
                 <headerToolbar>
                     <Toolbar id="Toolbar">
                         <ToolbarSpacer id="ToolbarSpacer"/>
@@ -18,10 +20,12 @@
                         <SearchField id="ZYearSF" placeholder="Évszám" liveChange="handleZYear"/>
                         <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleZmonth"/>
                         <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleLicenseplate"/>
+                        <!--Létrehozás kell még-->
                         <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
                     </Toolbar>
                 </headerToolbar>
+                <!--Megfelelő oszlopok létrehozása-->
                 <columns>
                     <Column id="StatusC">                
                         <Text id="StatusT" text="Státusz"/>
@@ -50,7 +54,9 @@
                     <Column id="NoteC">
                         <Text id="NoteT" text="Jegyzet"/>
                     </Column>
+                    <!--Kell még egy tétel db szám számoló...-->
                 </columns>
+                <!--Oszlopokra bindeljük a megfelelő backend adatokat-->
                 <items>
                     <ColumnListItem id="ColumnListItem" press="onItemPress" type="Active">
                         <cells>
@@ -63,6 +69,7 @@
                             <Text id="AvgFuelPriceCell" text="{ path: 'AvgFuelPrice', formatter: '.formatAvgFuelPrice' }"/>
                             <Text id="AvgFuelCurrencyCell" text="{AvgFuelCurrency}"/>
                             <Text id="NoteCell" text="{Note}"/>
+                            <!--Tétel db számot még meg kell szülni valahogy-->
                         </cells>
                     </ColumnListItem>
                 </items>

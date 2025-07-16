@@ -5,19 +5,23 @@
 
     <Page id="items" title="{i18n>title}">
         <VBox id="VBox">
+            <!--Tábla létrehozása a tételekhez-->
             <Table
                 id="itemsTable"
                 items="{path: '/ItemSet'}"
                 mode="MultiSelect"
                 inset="false">
+                <!--Fejléc létrehozása tételek felvételére, módosítására és létrehozására-->
                 <headerToolbar>
                     <Toolbar id="itemToolbar">
                         <Title id="itemTitle" text="Tételek lista" level="H2"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
-                        <Button id="itemGroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
-                        <Button id="itemDeleteButton" text="Törlés" press="onDelete"/>
+                        <Button id="itemCreateButton" text="Új sor" press="onCreateItem"/>
+                        <Button id="itemUpdateButton" text="Módosítás" press="onUpdateItem"/>
+                        <Button id="itemDeleteButton" text="Törlés" press="onDeleteItem"/>
                     </Toolbar>
                 </headerToolbar>
+                <!--Megfelelő oszlopok létrehozása-->
                 <columns>
                     <Column id="itemIidC">
                         <Text id="itemIidT" text="Tételazonosító"/>
@@ -50,6 +54,7 @@
                         <Text id="itemNoteT" text="Jegyzet az útról"/>
                     </Column>
                 </columns>
+                <!--Oszlopokhoz backend bindelés-->
                 <items>
                     <ColumnListItem id="itemColumnListItem" press="onItemPress" type="Active">
                         <cells>
