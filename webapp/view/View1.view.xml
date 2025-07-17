@@ -48,28 +48,26 @@
                     <Column id="AvgFuelPriceC">
                         <Text id="AvgFuelPriceT" text="Átlagos üzemanyagár"/>
                     </Column>
-                    <Column id="AvgFuelCurrencyC">
-                        <Text id="AvgFuelCurrencyT" text="Pénznem"/>
-                    </Column>
                     <Column id="NoteC">
                         <Text id="NoteT" text="Jegyzet"/>
                     </Column>
-                    <!--Kell még egy tétel db szám számoló...-->
+                    <Column id="ZcountC">
+                        <Text id="ZcountT" text="Kapcsolódó tételek darabszáma"/>
+                    </Column>
                 </columns>
                 <!--Oszlopokra bindeljük a megfelelő backend adatokat-->
                 <items>
                     <ColumnListItem id="ColumnListItem" press="onItemPress" type="Active">
                         <cells>
-                            <Text id="StatusCell" text="{Status}"/>
+                            <ObjectStatus id="StatusCell" text="{Status}" state="{ path: 'Status', formatter: '.formatStatusColor' }"/>
                             <Text id="ZyearCell" text="{Zyear}"/>
                             <Text id="ZmonthCell" text="{Zmonth}"/>
                             <Text id="LicenseplateCell" text="{Licenseplate}"/>
                             <Text id="KmStartCell" text="{KmStart}"/>
                             <Text id="KmEndCell" text="{KmEnd}"/>
-                            <Text id="AvgFuelPriceCell" text="{ path: 'AvgFuelPrice', formatter: '.formatAvgFuelPrice' }"/>
-                            <Text id="AvgFuelCurrencyCell" text="{AvgFuelCurrency}"/>
+                            <Text id="AvgFuelPriceCell" text="{ parts: [ { path: 'AvgFuelPrice' }, { path: 'AvgFuelCurrency' }], formatter: '.formatHufPrice' }"/>
                             <Text id="NoteCell" text="{Note}"/>
-                            <!--Tétel db számot még meg kell szülni valahogy-->
+                            <Text id="ZcountCell" text="{Zcount}"/>
                         </cells>
                     </ColumnListItem>
                 </items>

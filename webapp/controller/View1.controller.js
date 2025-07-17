@@ -2,22 +2,26 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/UIComponent",
     "sap/ui/core/Item",
+    "sap/ui/core/library",     
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/m/Dialog",
     "sap/m/TextArea",
     "sap/m/Input",
-    "sap/m/InputType",
+    "sap/m/library",           
     "sap/m/Label",
     "sap/m/VBox",
     "sap/m/Select",
-	"sap/ui/model/Filter",
-	"sap/ui/model/FilterOperator",
-	"sap/ui/model/FilterType",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+    "sap/ui/model/FilterType",
     "sap/m/Button",
     "sap/ui/model/odata/v4/ODataModel"
-], (Controller, UIComponent, Item, MessageToast, MessageBox, Dialog, TextArea, Input, InputType, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
+], (Controller, UIComponent, Item, coreLibrary, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
     "use strict";
+
+    const ValueState = coreLibrary.ValueState;
+    const InputType = mLibrary.InputType;
 
     return Controller.extend("bbroadr.controller.View1", {
         onInit() {},
@@ -134,14 +138,37 @@ sap.ui.define([
             this._oReasonDialog.open();
         },
 
-        //A pénz árát forint esetén megfelelő formátumra hozzuk
-        formatAvgFuelPrice: function(value) {
+        //Státusz színezés
+        formatStatusColor: function(value) {
+            switch (value) {
+                case "OPEN":
+                    return ValueState.Warning;   //sárga
+                case "APPROVED":
+                    return ValueState.Success;   //zöld
+                default:
+                    return ValueState.Error;     //piros
+            }
+        },
+
+        //A forint esetén megfelelő formátumra hozzuk a pénzt, egyébként pedig visszaadjuk 2 tizedesjeggyel
+        formatHufPrice: function(value, currency) {
+            if (typeof value !== "string") {
+                value = value == null ? "" : String(value);
+            }
+
+            value = value.replace(/,/g, '');
             const n = parseFloat(value);
+
             if (isNaN(n)) {
                 return "0";
             }
-            return (n*10).toFixed(2);
-        },
+
+            if (currency === "HUF"){
+                return (n / 100).toFixed(0) + " " + currency;
+            }
+
+            return n.toFixed(2) + " " + currency;
+        },    
 
         //Státusz szűres (szépen működik)
         handleStatus: function() {
@@ -187,7 +214,6 @@ sap.ui.define([
         _showCreateDialog() {
             const oView = this.getView();
             const oModel = oView.getModel();
-            console.log(oModel);
 
             //Többszörös példányosítás megelőzése
             if (this._oCreateDialog) {

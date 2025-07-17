@@ -70,7 +70,7 @@
           "operationMode": "Server",
           "autoExpandSelect": true
         },
-        "type": "sap.ui.model.odata.v2.ODataModel"
+        "type": "sap.ui.model.odata.v4.ODataModel"
       }
     },
     "sap.fe": {
