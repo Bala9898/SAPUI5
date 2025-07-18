@@ -1,4 +1,5 @@
 sap.ui.define([
+    "sap/ushell/Container",
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/UIComponent",
     "sap/ui/core/Item",
@@ -17,14 +18,14 @@ sap.ui.define([
     "sap/ui/model/FilterType",
     "sap/m/Button",
     "sap/ui/model/odata/v4/ODataModel"
-], (Controller, UIComponent, Item, coreLibrary, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
+], (Container, Controller, UIComponent, Item, coreLibrary, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
     "use strict";
 
     const ValueState = coreLibrary.ValueState;
     const InputType = mLibrary.InputType;
 
     return Controller.extend("bbroadr.controller.View1", {
-        onInit() {},
+        onInit() {},        
 
         //Tételekbe navigálás
         onItemPress(oEvent) {
@@ -201,7 +202,7 @@ sap.ui.define([
                 aFilters.push(new Filter("Licenseplate", FilterOperator.StartsWith, sLicenseplate));
             }
 
-            console.log(oView.byId("headerTable").getBinding("items"));
+            //console.log(oView.byId("headerTable").getBinding("items"));
             oView.byId("headerTable").getBinding("items").filter(aFilters, FilterType.Application);
         },
 
@@ -330,6 +331,13 @@ sap.ui.define([
 
             //Valójában itt nyitjuk meg az új kis ablakot, eddig csak definiáltuk a részeit
             this._oCreateDialog.open();
+        },
+
+        //Ne a teljes szöveget mutassa a jegyzetnél
+        truncateNote: function(sText) {
+            if (!sText) return "";
+            return sText.length > 30 ? sText.substring(0, 30) + "..." : sText;
         }
+
     });
 });
