@@ -53,6 +53,15 @@ sap.ui.define([
         if (typeof value !== "string") {
             value = value == null ? "" : String(value);
         }
+        if (currency === "HUF"){
+            value = value.replace(/,/g, '');
+            const n = parseFloat(value);
+
+            if (isNaN(n)) {
+                return "0";
+            }
+            return (n / 100).toFixed(0) + " " + currency;
+        }
 
         value = value.replace(/,/g, '');
         const n = parseFloat(value);
@@ -60,13 +69,8 @@ sap.ui.define([
         if (isNaN(n)) {
             return "0";
         }
-
-        if (currency === "HUF"){
-            return (n / 100).toFixed(0) + " " + currency;
-        }
-
         return n.toFixed(2) + " " + currency;
-      }    
+      }
     
     });
   });

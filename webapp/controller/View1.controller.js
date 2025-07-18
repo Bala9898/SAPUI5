@@ -155,6 +155,15 @@ sap.ui.define([
             if (typeof value !== "string") {
                 value = value == null ? "" : String(value);
             }
+            if (currency === "HUF"){
+                value = value.replace(/,/g, '');
+                const n = parseFloat(value);
+
+                if (isNaN(n)) {
+                    return "0";
+                }
+                return (n / 100).toFixed(0) + " " + currency;
+            }
 
             value = value.replace(/,/g, '');
             const n = parseFloat(value);
@@ -162,50 +171,40 @@ sap.ui.define([
             if (isNaN(n)) {
                 return "0";
             }
-
-            if (currency === "HUF"){
-                return (n / 100).toFixed(0) + " " + currency;
-            }
-
             return n.toFixed(2) + " " + currency;
         },    
 
-        //Státusz szűres (szépen működik)
-        handleStatus: function() {
+        //Összes szűrés egyben
+        handleFilter: function() {
             var oView = this.getView();
-            var sValue = oView.byId("StatusSF").getValue().toUpperCase();
-            var oFilter = new Filter("Status", FilterOperator.Contains, sValue);
-            
-            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
+            var sStatus = oView.byId("StatusSF").getValue().toUpperCase();
+            var sZyear = oView.byId("ZyearSF").getValue();
+            var sZmonth = oView.byId("ZmonthSF").getValue();
+            var sLicenseplate = oView.byId("LicenseplateSF").getValue().toUpperCase();
+
+            var aFilters = [];
+
+            //működik
+            if (sStatus) {
+                aFilters.push(new Filter("Status", FilterOperator.StartsWith, sStatus));
+            }
+            //nem működik
+            if (sZyear) {
+                aFilters.push(new Filter("Zyear", FilterOperator.StartsWith, sZyear));
+            }
+            //nem működik
+            if (sZmonth) {
+                aFilters.push(new Filter("Zmonth", FilterOperator.StartsWith, sZmonth));
+            }
+            //működik
+            if (sLicenseplate) {
+                aFilters.push(new Filter("Licenseplate", FilterOperator.StartsWith, sLicenseplate));
+            }
+
+            console.log(oView.byId("headerTable").getBinding("items"));
+            oView.byId("headerTable").getBinding("items").filter(aFilters, FilterType.Application);
         },
 
-        //Évszám szűres (eldobja az adatokat)
-        handleZYear: function() {
-            var oView = this.getView();
-            var sValue = oView.byId("ZYearSF").getValue();
-            var oFilter = new Filter("Zyear", FilterOperator.Contains, sValue);
-            
-            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
-        },
-
-        //Hónap szűrés (nem csinál semmit)
-        handleZMonth: function() {
-            var oView = this.getView();
-            var sValue = oView.byId("ZMonthSF").getValue();
-            var oFilter = new Filter("Zmonth", FilterOperator.Contains, sValue);
-            
-            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
-        },
-
-        //Rendszámtábla szűres (szépen működik)
-        handleLicenseplate: function() {
-            var oView = this.getView();
-            var sValue = oView.byId("LicenseplateSF").getValue().toUpperCase();
-            var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
-            
-            oView.byId("headerTable").getBinding("items").filter(oFilter, FilterType.Application);
-        },
-       
         //Új fesor létrehozása
         onCreateHead: function () {
             this._showCreateDialog();

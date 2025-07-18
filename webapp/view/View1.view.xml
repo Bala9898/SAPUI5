@@ -16,10 +16,10 @@
                 <headerToolbar>
                     <Toolbar id="Toolbar">
                         <ToolbarSpacer id="ToolbarSpacer"/>
-                        <SearchField id="StatusSF" placeholder="Státusz" liveChange="handleStatus"/>
-                        <SearchField id="ZYearSF" placeholder="Évszám" liveChange="handleZYear"/>
-                        <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleZmonth"/>
-                        <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleLicenseplate"/>
+                        <SearchField id="StatusSF" placeholder="Státusz" liveChange="handleFilter"/>
+                        <SearchField id="ZyearSF" placeholder="Évszám" liveChange="handleFilter"/>
+                        <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleFilter"/>
+                        <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>
                         <Button id="CreateHeadButton" text="Új sor" press="onCreateHead"/>
                         <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
