@@ -92,32 +92,67 @@ sap.ui.define([
                         const sReason = oTextArea.getValue().trim();
                         this._oReasonDialog.close();
                     
+                        var b = true;
                         sap.ui.core.BusyIndicator.show(0);
                         
                         //Backend rész
                         var oModel = this.getView().getModel();
+                        
                         //Végig loopolunk a kiválasztott sorokon
                         aSelected.forEach(oItem => {
-                            //Megszerezzük az entitást (entity update)
-                            const oCtx = oItem.getBindingContext();
-                        
-                            //Beállítjuk a note és status mezőket a megfelelő értékekre
-                            if (oCtx) {
-                                oCtx.setProperty("Note", sReason, "massUpdate");
-                                
-                                const sStatus = sAction === "Jóváhagyás" ? "APPROVED" : "DECLINED";
-                                oCtx.setProperty("Status", sStatus, "massUpdate");
+                            var oCtx = oItem.getBindingContext();
+
+                            var sStatus = oCtx.getProperty("Status");
+
+                            if (sStatus !== "OPEN") {
+                                // Átugorjuk ezt a sort
+                                b = false;
+                                return;
                             }
-                        });
-                    
-                        try {
-                            //A történt változásokat elküldjük a backendre is
-                            await oModel.submitBatch("massUpdate");
-                            MessageToast.show(`${aSelected.length} sor sikeresen ${sAction === "Jóváhagyás" ? "jóváhagyva" : "elutasítva"}.`);
-                        } catch (oErr) {
-                            MessageBox.error("Hiba történt a mentés során.\nRészletek: " + (oErr?.message || oErr));
-                        } finally {
+
+                            var sPath = oCtx.getPath();
+                            sStatus = sAction === "Jóváhagyás" ? "APPROVED" : "DECLINED";
+                        
+                            var oUpdatedData = {
+                                Username: oCtx.getProperty("Username"),
+                                Zyear: oCtx.getProperty("Zyear"),
+                                Zmonth: oCtx.getProperty("Zmonth"),
+                                Licenseplate: oCtx.getProperty("Licenseplate"),
+                                KmStart: oCtx.getProperty("KmStart"),
+                                KmEnd: oCtx.getProperty("KmEnd"),
+                                AvgFuelPrice: oCtx.getProperty("AvgFuelPrice"),
+                                AvgFuelCurrency: oCtx.getProperty("AvgFuelCurrency"),
+                                Status: sStatus,
+                                Note: sReason,
+                                Zcount: oCtx.getProperty("Zcount")
+                            };                            
+                                                    
+                            oModel.update(sPath, oUpdatedData, {
+                                success: function() {},
+                                error: function(oError) {
+                                    b = false;
+                                }
+                            });
+                        });                        
+                        
+                        if (b === false) {
+                            MessageBox.error("Csak OPEN státuszú fejsort/fejsorokat lehet jóváhagyni vagy elutasítani.");
                             sap.ui.core.BusyIndicator.hide();
+                        }
+                        else {
+                            try
+                            {
+                                oModel.submitChanges();
+                                MessageBox.success(`${aSelected.length} sor sikeresen ${sAction === "Jóváhagyás" ? "jóváhagyva" : "elutasítva"}.`);
+                            }
+                            catch (oError)
+                            {
+                                MessageBox.error("Hiba történt az entitás frissítésekor.\nRészletek: " + (oError?.message || oError));
+                            }
+                            finally
+                            {
+                                sap.ui.core.BusyIndicator.hide();
+                            }
                         }
                     }                    
                 }),                                    
@@ -221,30 +256,30 @@ sap.ui.define([
             }
 
             //Beviteli mezők definiálása, ahova az adatokat lehet írni
-            const oInputYear = new Input("inputYear", {
+            this.oInputYear = new Input("inputYear", {
                 placeholder: "Pl. 2025",
                 type: InputType.String
             });
         
-            const oInputMonth = new Input("inputMonth", {
+            this.oInputMonth = new Input("inputMonth", {
                 placeholder: "Pl. 07",
                 type: InputType.String
             });
 
-            const oInputLp = new Input("inputLp", {
+            this.oInputLp = new Input("inputLp", {
                 placeholder: "Pl. ABC123",
                 type: InputType.String
             });
         
-            const oInputKmStart = new Input("inputKmStart", {
+            this.oInputKmStart = new Input("inputKmStart", {
                 type: InputType.Number
             });
         
-            const oInputAvgPrice = new Input("inputAvgPrice", {
+            this.oInputAvgPrice = new Input("inputAvgPrice", {
                 type: InputType.Number
             });
         
-            const oSelectCurr = new Select("inputCurr", {
+            this.oSelectCurr = new Select("inputCurr", {
                 items: [
                     new Item({ key: "HUF", text: "HUF" }),
                     new Item({ key: "EUR", text: "EUR" }),
@@ -256,38 +291,19 @@ sap.ui.define([
             const oDialogContent = new VBox({
                 items: [
                     new Label({ text: "Év" }),
-                    oInputYear,
+                    this.oInputYear,
                     new Label({ text: "Hónap" }),
-                    oInputMonth,
+                    this.oInputMonth,
                     new Label({ text: "Rendszámtábla" }),
-                    oInputLp,
+                    this.oInputLp,
                     new Label({ text: "Kezdő kilométeróra állás" }),
-                    oInputKmStart,
+                    this.oInputKmStart,
                     new Label({ text: "Üzemanyag átlagár" }),
-                    oInputAvgPrice,
+                    this.oInputAvgPrice,
                     new Label({ text: "Pénznem" }),
-                    oSelectCurr
+                    this.oSelectCurr
                 ]
             }).addStyleClass("sapUiSmallMargin");
-
-            const sU = sap.ushell.Container.getUser().getId();
-            const sY = sap.ui.getCore().byId("inputYear").getValue();
-            const sM = sap.ui.getCore().byId("inputMonth").getValue();
-            const sLp = sap.ui.getCore().byId("inputLp").getValue();
-            const iKm = parseInt(sap.ui.getCore().byId("inputKmStart").getValue(), 10);
-            const fAvg = parseFloat(sap.ui.getCore().byId("inputAvgPrice").getValue());
-            const sCurr = sap.ui.getCore().byId("inputCurr").getSelectedKey();
-
-            const oNewEntry = {
-                Username: sU, //get the current user using the app
-                Zyear: sY, //get oDialogContent.oInputYear
-                Zmonth: sM, //get oDialogContent.oInputMonth
-                Licenseplate: sLp, //get oDialogContent.oInputLp
-                KmStart: iKm, //get oDialogContent.oInputKmStart
-                AvgFuelPrice: fAvg, //get oDialogContent.oInputAvgPrice
-                AvgFuelCurrency: sCurr, //get oDialogContent.oInputCurr
-                Status: "OPEN"
-            };
 
             //Létrehozzuk a felugró ablakot a szövegmezővel
             this._oCreateDialog = new Dialog({
@@ -299,17 +315,41 @@ sap.ui.define([
                 beginButton: new Button({
                     text: "Létrehozás",
                     press: () => {
-                        // Új rekord objektum
+                        //Adatok az új rekordhoz
+                        var sU = "BBARISCHIN"; //|| sap.ushell?.Container?.getUser?.().getId() valamiért nem a sajátomat adja vissza;
+                        var sY = this.oInputYear.getValue();
+                        var sM = this.oInputMonth.getValue();
+                        var sLp = this.oInputLp.getValue();
+                        var iKm = parseInt(this.oInputKmStart.getValue(), 10);
+                        var sCurr = this.oSelectCurr.getSelectedKey();
+                        var fAvg = this.oInputAvgPrice.getValue();
+                        if (sCurr === "HUF")
+                        {
+                            fAvg = fAvg + "00";
+                        }
                         
-                    
+                        //Új rekord
+                        const oNewEntry = {
+                            Username: sU, 
+                            Zyear: sY, 
+                            Zmonth: sM, 
+                            Licenseplate: sLp,
+                            KmStart: iKm,
+                            KmEnd: iKm,
+                            AvgFuelPrice: fAvg,
+                            AvgFuelCurrency: sCurr,
+                            Status: "OPEN",
+                            Note: "",
+                            Zcount: 0
+                        };
+                        
                         // Létrehozás az OData modellen
                         oModel.create("/HeaderSet", oNewEntry, {
                             success: function () {
                                 MessageToast.show("A fejsor sikeresen létrehozva.");
-                                oModel.refresh(); // vagy újra lekérdezés, ha kell
                             },
                             error: function (oError) {
-                                MessageBox.error("Hiba történt a létrehozás során.");
+                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError);
                                 console.error(oError);
                             }
                         });

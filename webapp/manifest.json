@@ -68,9 +68,10 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true
+          "autoExpandSelect": true,
+          "useBatch": false
         },
-        "type": "sap.ui.model.odata.v4.ODataModel"
+        "type": "sap.ui.model.odata.v2.ODataModel"
       }
     },
     "sap.fe": {

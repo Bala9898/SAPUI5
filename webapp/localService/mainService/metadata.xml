@@ -19,6 +19,7 @@
                 <Property Name="AvgFuelCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Üzemanyag átlagár pénznem" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Status" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Státusz" sap:creatable="false" sap:sortable="false"/>
                 <Property Name="Note" Type="Edm.String" Nullable="false" MaxLength="120" sap:unicode="false" sap:label="Jegyzet" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Zcount" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kapcsolódó tétel db száma" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityType Name="Item" sap:content-version="1">
                 <Key>

@@ -21,8 +21,8 @@
                         <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleFilter"/>
                         <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>
                         <Button id="CreateHeadButton" text="Új sor" press="onCreateHead"/>
-                        <Button id="GroupApproveButton" text="Csoportos jóváhagyás" press="onGroupApprove"/>
-                        <Button id="GroupRejectButton" text="Csoportos elutasítás" press="onGroupReject"/>
+                        <Button id="GroupApproveButton" text="Jóváhagyás" press="onGroupApprove"/>
+                        <Button id="GroupRejectButton" text="Elutasítás" press="onGroupReject"/>
                     </Toolbar>
                 </headerToolbar>
                 <!--Megfelelő oszlopok létrehozása-->
