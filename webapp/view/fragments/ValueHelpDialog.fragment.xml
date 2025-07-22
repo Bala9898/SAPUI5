@@ -1,0 +1,15 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="selectDialog"
+		title="Rendszámok"
+		items="{/Licenseplate}"
+		search=".onValueHelpSearch"
+		confirm=".onValueHelpClose"
+		cancel=".onValueHelpClose">
+		<StandardListItem id="_IDGenStandardListItem"
+			iconDensityAware="false"
+			iconInset="false"
+			title="{Licenseplate}"
+			description="[{Manufacturer, Type}]" />
+	</SelectDialog>
+</core:FragmentDefinition>

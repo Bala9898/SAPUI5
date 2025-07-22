@@ -1,6 +1,7 @@
 <mvc:View
     controllerName="bbroadr.controller.View1"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m">
 
     <Page id="page" title="{i18n>title}">
@@ -16,10 +17,40 @@
                 <headerToolbar>
                     <Toolbar id="Toolbar">
                         <ToolbarSpacer id="ToolbarSpacer"/>
-                        <SearchField id="StatusSF" placeholder="Státusz" liveChange="handleFilter"/>
-                        <SearchField id="ZyearSF" placeholder="Évszám" liveChange="handleFilter"/>
-                        <SearchField id="ZmonthSF" placeholder="Hónap" liveChange="handleFilter"/>
-                        <SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>
+                        <Select id="StatusS" type="Default" selectedKey="{filters>/status}" change="handleFilter">
+                            <core:Item id="uresI" key="" text="-- Státusz --" />
+                            <core:Item id="openI" key="OPEN" text="OPEN" />
+                            <core:Item id="apprI" key="APPROVED" text="APPROVED" />
+                            <core:Item id="decI" key="DECLINED" text="DECLINED" />
+                        </Select>
+                        <DatePicker id="ZyearDP" value="{Zyear}" displayFormat="yyyy" valueFormat="yyyy" placeholder="Évszám" change="handleFilter"/>
+                        <Select id="ZmonthS" type="Default" change="handleFilter" selectedKey="filters>/zmonth">
+                            <core:Item id="m0" key="" text="-- Hónap --" />
+                            <core:Item id="m1" key="01" text="Január" />
+                            <core:Item id="m2" key="02" text="Február" />
+                            <core:Item id="m3" key="03" text="Március" />
+                            <core:Item id="m4" key="04" text="Április" />
+                            <core:Item id="m5" key="05" text="Május" />
+                            <core:Item id="m6" key="06" text="Június" />
+                            <core:Item id="m7" key="07" text="Július" />
+                            <core:Item id="m8" key="08" text="Augusztus" />
+                            <core:Item id="m9" key="09" text="Szeptember" />
+                            <core:Item id="m10" key="10" text="Október" />
+                            <core:Item id="m11" key="11" text="November" />
+                            <core:Item id="m12" key="12" text="December" />
+                        </Select>
+                        <Input
+                            id="lpInput"
+                            placeholder="Rendszám"
+                            showSuggestion="true"
+                            showValueHelp="true"
+                            valueHelpRequest=".onValueHelpRequest"
+                            suggestionItems="{/ZbbvhCarsSet}">
+                            <suggestionItems>
+                                <core:Item id="lpI" text="{Licenseplate}" />
+                            </suggestionItems>
+                        </Input>
+                        <!--<SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>-->
                         <Button id="CreateHeadButton" text="Új sor" press="onCreateHead"/>
                         <Button id="GroupApproveButton" text="Jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Elutasítás" press="onGroupReject"/>
@@ -61,7 +92,7 @@
                         <cells>
                             <ObjectStatus id="StatusCell" text="{Status}" state="{ path: 'Status', formatter: '.formatStatusColor' }"/>
                             <Text id="ZyearCell" text="{Zyear}"/>
-                            <Text id="ZmonthCell" text="{Zmonth}"/>
+                            <Text id="ZmonthCell" text="{ path: 'Zmonth', formatter: '.formatMonthText' }"/>
                             <Text id="LicenseplateCell" text="{Licenseplate}"/>
                             <Text id="KmStartCell" text="{KmStart}"/>
                             <Text id="KmEndCell" text="{KmEnd}"/>

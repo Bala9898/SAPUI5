@@ -3,7 +3,8 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/UIComponent",
     "sap/ui/core/Item",
-    "sap/ui/core/library",     
+    "sap/ui/core/library",
+	"sap/ui/core/Fragment",   
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/m/Dialog",
@@ -18,15 +19,28 @@ sap.ui.define([
     "sap/ui/model/FilterType",
     "sap/m/Button",
     "sap/ui/model/odata/v4/ODataModel"
-], (Container, Controller, UIComponent, Item, coreLibrary, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
+], (Container, Controller, UIComponent, Item, coreLibrary, Fragment, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
     "use strict";
 
     const ValueState = coreLibrary.ValueState;
     const InputType = mLibrary.InputType;
 
     return Controller.extend("bbroadr.controller.View1", {
-        onInit() {},        
+        onInit() {
+            var oSelect = this.byId("StatusS");
+            oSelect.setSelectedKey("");
 
+            var oFilterModel = new sap.ui.model.json.JSONModel({
+                status: "",
+                zyear: "",
+                zmonth: "",
+                licenseplate: ""
+            });
+            this.getView().setModel(oFilterModel, "filters");
+        },        
+
+
+//Függvényhívások
         //Tételekbe navigálás
         onItemPress(oEvent) {
             //Megszerezzük az adott sort és annak adatait a fejek közül
@@ -42,17 +56,239 @@ sap.ui.define([
             });
         },
 
-        //Csoportos jóváhagyás gomb
+        //Jóváhagyás gomb
         onGroupApprove() {
             this._showReasonDialog("Jóváhagyás");
         },
 
-        //Csoportos elutasítás gomb
+        //Elutasítás gomb
         onGroupReject() {
             this._showReasonDialog("Elutasítás");
         },
 
-        //Elfogadás/elutasítás felugró ablak
+        //Új fejsor létrehozása
+        onCreateHead: function () {
+            this._showCreateDialog();
+        },
+
+
+//***************************************************************************************************************************************************************
+
+//Value help rendszám táblákhoz
+        onValueHelpRequest: function (oEvent) {
+			var sInputValue = oEvent.getSource().getValue(),
+				oView = this.getView();
+
+			if (!this._pValueHelpDialog) {
+				this._pValueHelpDialog = Fragment.load({
+					id: oView.getId(),
+					name: "bbroadr.view.fragments.ValueHelpDialog",
+					controller: this
+				}).then(function (oDialog) {
+					oView.addDependent(oDialog);
+					return oDialog;
+				});
+			}
+			this._pValueHelpDialog.then(function(oDialog) {
+				// Create a filter for the binding
+				oDialog.getBinding("items").filter([new Filter("Licenseplate", FilterOperator.Contains, sInputValue)]);
+				// Open ValueHelpDialog filtered by the input's value
+				oDialog.open(sInputValue);
+			});
+		},
+
+		onValueHelpSearch: function (oEvent) {
+			var sValue = oEvent.getParameter("value");
+			var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
+
+			oEvent.getSource().getBinding("items").filter([oFilter]);
+		},
+
+		onValueHelpClose: function (oEvent) {
+			var oSelectedItem = oEvent.getParameter("selectedItem");
+			oEvent.getSource().getBinding("items").filter([]);
+
+			if (!oSelectedItem) {
+				return;
+			}
+
+			this.byId("lpI").setValue(oSelectedItem.getTitle());
+		},
+
+
+//***************************************************************************************************************************************************************
+
+
+//Filter
+        //Összes szűrés egyben
+        handleFilter: function() {
+            //Adatok megszerezése
+            var oView = this.getView();
+            var sKey = oView.byId("StatusS").getSelectedKey();
+            var mKey = oView.byId("ZmonthS").getSelectedKey();
+            var oFilterModel = this.getView().getModel("filters");
+            oFilterModel.setProperty("/status", sKey);
+            oFilterModel.setProperty("/zmonth", mKey);
+            var oStatus = oFilterModel.getProperty("/status");
+            var oZmonth= oFilterModel.getProperty("/zmonth");
+            var sZyear = oView.byId("ZyearDP").getValue();
+            var sLicenseplate = oView.byId("LicenseplateSF").getValue().toUpperCase();
+            var aFilters = [];
+
+            //Filterek beállítása
+            if (oStatus) {
+                aFilters.push(new Filter("Status", FilterOperator.EQ, oStatus));
+            }
+            if (sZyear) {
+                aFilters.push(new Filter("Zyear", FilterOperator.EQ, sZyear));
+            }
+            if (oZmonth) {
+                aFilters.push(new Filter("Zmonth", FilterOperator.EQ, oZmonth));
+            }
+            if (sLicenseplate) {
+                aFilters.push(new Filter("Licenseplate", FilterOperator.EQ, sLicenseplate));
+            }
+
+            //Filtering
+            oView.byId("headerTable").getBinding("items").filter(aFilters, FilterType.Application);
+        },
+        
+
+//***************************************************************************************************************************************************************
+
+
+//Dialogok
+//Create/update dialog
+        _showCreateDialog() {
+            const oView = this.getView();
+            const oModel = oView.getModel();
+
+            //Többszörös példányosítás megelőzése
+            if (this._oCreateDialog) {
+                this._oCreateDialog.destroy();
+            }
+
+            //Beviteli mezők definiálása, ahova az adatokat lehet írni
+            this.oInputYear = new Input("inputYear", {
+                placeholder: "Pl. 2025",
+                type: InputType.String
+            });
+        
+            this.oInputMonth = new Input("inputMonth", {
+                placeholder: "Pl. 07",
+                type: InputType.String
+            });
+
+            this.oInputLp = new Input("inputLp", {
+                placeholder: "Pl. ABC123",
+                type: InputType.String
+            });
+        
+            this.oInputKmStart = new Input("inputKmStart", {
+                type: InputType.Number
+            });
+        
+            this.oInputAvgPrice = new Input("inputAvgPrice", {
+                type: InputType.Number
+            });
+        
+            this.oSelectCurr = new Select("inputCurr", {
+                items: [
+                    new Item({ key: "HUF", text: "HUF" }),
+                    new Item({ key: "EUR", text: "EUR" }),
+                    new Item({ key: "USD", text: "USD" })
+                ]
+            });
+
+            //Content létrehozása a dialoghoz
+            const oDialogContent = new VBox({
+                items: [
+                    new Label({ text: "Év" }),
+                    this.oInputYear,
+                    new Label({ text: "Hónap" }),
+                    this.oInputMonth,
+                    new Label({ text: "Rendszámtábla" }),
+                    this.oInputLp,
+                    new Label({ text: "Kezdő kilométeróra állás" }),
+                    this.oInputKmStart,
+                    new Label({ text: "Üzemanyag átlagár" }),
+                    this.oInputAvgPrice,
+                    new Label({ text: "Pénznem" }),
+                    this.oSelectCurr
+                ]
+            }).addStyleClass("sapUiSmallMargin");
+
+            //Létrehozzuk a felugró ablakot a szövegmezővel
+            this._oCreateDialog = new Dialog({
+                title: "Új fejsor létrehozása",
+                contentWidth: "400px",
+                draggable: true,
+                resizable: true,
+                content: [oDialogContent],
+                beginButton: new Button({
+                    text: "Létrehozás",
+                    press: () => {
+                        //Adatok az új rekordhoz
+                        var sU = sap.ushell.Container.getService("UserInfo").getId()
+                        var sY = this.oInputYear.getValue();
+                        var sM = this.oInputMonth.getValue();
+                        var sLp = this.oInputLp.getValue();
+                        var iKm = parseInt(this.oInputKmStart.getValue(), 10);
+                        var sCurr = this.oSelectCurr.getSelectedKey();
+                        var fAvg = this.oInputAvgPrice.getValue();
+                        if (sCurr === "HUF")
+                        {
+                            fAvg = fAvg + "00";
+                        }
+                        
+                        //Új rekord
+                        const oNewEntry = {
+                            Username: sU, 
+                            Zyear: sY, 
+                            Zmonth: sM, 
+                            Licenseplate: sLp,
+                            KmStart: iKm,
+                            KmEnd: iKm,
+                            AvgFuelPrice: fAvg,
+                            AvgFuelCurrency: sCurr,
+                            Status: "OPEN",
+                            Note: "",
+                            Zcount: 0
+                        };
+                        
+                        // Létrehozás az OData modellen
+                        oModel.create("/HeaderSet", oNewEntry, {
+                            success: function () {
+                                MessageToast.show("A fejsor sikeresen létrehozva.");
+                            },
+                            error: function (oError) {
+                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError);
+                                console.error(oError);
+                            }
+                        });
+                    }                
+                }),                                    
+                endButton: new Button({
+                    text: "Mégse",
+                    //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
+                    press: () => {
+                        this._oCreateDialog.close();
+                    }
+                }),
+                //Eltűntetjük, kinullázzuk a dolgokat
+                afterClose: () => {
+                    this._oCreateDialog.destroy();
+                    this._oCreateDialog = null;
+                }
+            });
+
+            //Valójában itt nyitjuk meg az új kis ablakot, eddig csak definiáltuk a részeit
+            this._oCreateDialog.open();
+        },
+
+
+
+//Elfogadás/elutasítás felugró ablak
         _showReasonDialog(sAction) {
             //Megszerezzük a kiválasztott sorokat
             const oTable = this.byId("headerTable");
@@ -174,6 +410,37 @@ sap.ui.define([
             this._oReasonDialog.open();
         },
 
+
+//**************************************************************************************************************************************************************************************
+
+
+//Formatterek:
+
+        //Ne a teljes szöveget mutassa a jegyzetnél
+        truncateNote: function(sText) {
+            if (!sText) return "";
+            return sText.length > 30 ? sText.substring(0, 30) + "..." : sText;
+        },
+
+        //Hónap formázása
+        formatMonthText: function (value) {
+            const months = {
+                "01": "Január",
+                "02": "Február",
+                "03": "Március",
+                "04": "Április",
+                "05": "Május",
+                "06": "Június",
+                "07": "Július",
+                "08": "Augusztus",
+                "09": "Szeptember",
+                "10": "Október",
+                "11": "November",
+                "12": "December"
+            };
+            return months[value];
+        },
+
         //Státusz színezés
         formatStatusColor: function(value) {
             switch (value) {
@@ -191,6 +458,7 @@ sap.ui.define([
             if (typeof value !== "string") {
                 value = value == null ? "" : String(value);
             }
+            //Ha forint, akkor úgy formázzuk, hogy jól mutassa
             if (currency === "HUF"){
                 value = value.replace(/,/g, '');
                 const n = parseFloat(value);
@@ -201,182 +469,15 @@ sap.ui.define([
                 return (n / 100).toFixed(0) + " " + currency;
             }
 
+            //Egyéb esetekben elég float-tá alakítani
             value = value.replace(/,/g, '');
             const n = parseFloat(value);
 
+            //Ha NaN, akkor legyen 0
             if (isNaN(n)) {
                 return "0";
             }
             return n.toFixed(2) + " " + currency;
-        },    
-
-        //Összes szűrés egyben
-        handleFilter: function() {
-            var oView = this.getView();
-            var sStatus = oView.byId("StatusSF").getValue().toUpperCase();
-            var sZyear = oView.byId("ZyearSF").getValue();
-            var sZmonth = oView.byId("ZmonthSF").getValue();
-            var sLicenseplate = oView.byId("LicenseplateSF").getValue().toUpperCase();
-
-            var aFilters = [];
-
-            //működik
-            if (sStatus) {
-                aFilters.push(new Filter("Status", FilterOperator.StartsWith, sStatus));
-            }
-            //nem működik
-            if (sZyear) {
-                aFilters.push(new Filter("Zyear", FilterOperator.StartsWith, sZyear));
-            }
-            //nem működik
-            if (sZmonth) {
-                aFilters.push(new Filter("Zmonth", FilterOperator.StartsWith, sZmonth));
-            }
-            //működik
-            if (sLicenseplate) {
-                aFilters.push(new Filter("Licenseplate", FilterOperator.StartsWith, sLicenseplate));
-            }
-
-            //console.log(oView.byId("headerTable").getBinding("items"));
-            oView.byId("headerTable").getBinding("items").filter(aFilters, FilterType.Application);
-        },
-
-        //Új fesor létrehozása
-        onCreateHead: function () {
-            this._showCreateDialog();
-        },
-        
-        _showCreateDialog() {
-            const oView = this.getView();
-            const oModel = oView.getModel();
-
-            //Többszörös példányosítás megelőzése
-            if (this._oCreateDialog) {
-                this._oCreateDialog.destroy();
-            }
-
-            //Beviteli mezők definiálása, ahova az adatokat lehet írni
-            this.oInputYear = new Input("inputYear", {
-                placeholder: "Pl. 2025",
-                type: InputType.String
-            });
-        
-            this.oInputMonth = new Input("inputMonth", {
-                placeholder: "Pl. 07",
-                type: InputType.String
-            });
-
-            this.oInputLp = new Input("inputLp", {
-                placeholder: "Pl. ABC123",
-                type: InputType.String
-            });
-        
-            this.oInputKmStart = new Input("inputKmStart", {
-                type: InputType.Number
-            });
-        
-            this.oInputAvgPrice = new Input("inputAvgPrice", {
-                type: InputType.Number
-            });
-        
-            this.oSelectCurr = new Select("inputCurr", {
-                items: [
-                    new Item({ key: "HUF", text: "HUF" }),
-                    new Item({ key: "EUR", text: "EUR" }),
-                    new Item({ key: "USD", text: "USD" })
-                ]
-            });
-
-            //Content létrehozása a dialoghoz
-            const oDialogContent = new VBox({
-                items: [
-                    new Label({ text: "Év" }),
-                    this.oInputYear,
-                    new Label({ text: "Hónap" }),
-                    this.oInputMonth,
-                    new Label({ text: "Rendszámtábla" }),
-                    this.oInputLp,
-                    new Label({ text: "Kezdő kilométeróra állás" }),
-                    this.oInputKmStart,
-                    new Label({ text: "Üzemanyag átlagár" }),
-                    this.oInputAvgPrice,
-                    new Label({ text: "Pénznem" }),
-                    this.oSelectCurr
-                ]
-            }).addStyleClass("sapUiSmallMargin");
-
-            //Létrehozzuk a felugró ablakot a szövegmezővel
-            this._oCreateDialog = new Dialog({
-                title: "Új fejsor létrehozása",
-                contentWidth: "400px",
-                draggable: true,
-                resizable: true,
-                content: [oDialogContent],
-                beginButton: new Button({
-                    text: "Létrehozás",
-                    press: () => {
-                        //Adatok az új rekordhoz
-                        var sU = "BBARISCHIN"; //|| sap.ushell?.Container?.getUser?.().getId() valamiért nem a sajátomat adja vissza;
-                        var sY = this.oInputYear.getValue();
-                        var sM = this.oInputMonth.getValue();
-                        var sLp = this.oInputLp.getValue();
-                        var iKm = parseInt(this.oInputKmStart.getValue(), 10);
-                        var sCurr = this.oSelectCurr.getSelectedKey();
-                        var fAvg = this.oInputAvgPrice.getValue();
-                        if (sCurr === "HUF")
-                        {
-                            fAvg = fAvg + "00";
-                        }
-                        
-                        //Új rekord
-                        const oNewEntry = {
-                            Username: sU, 
-                            Zyear: sY, 
-                            Zmonth: sM, 
-                            Licenseplate: sLp,
-                            KmStart: iKm,
-                            KmEnd: iKm,
-                            AvgFuelPrice: fAvg,
-                            AvgFuelCurrency: sCurr,
-                            Status: "OPEN",
-                            Note: "",
-                            Zcount: 0
-                        };
-                        
-                        // Létrehozás az OData modellen
-                        oModel.create("/HeaderSet", oNewEntry, {
-                            success: function () {
-                                MessageToast.show("A fejsor sikeresen létrehozva.");
-                            },
-                            error: function (oError) {
-                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError);
-                                console.error(oError);
-                            }
-                        });
-                    }                
-                }),                                    
-                endButton: new Button({
-                    text: "Mégse",
-                    //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
-                    press: () => {
-                        this._oCreateDialog.close();
-                    }
-                }),
-                //Eltűntetjük, kinullázzuk a dolgokat
-                afterClose: () => {
-                    this._oCreateDialog.destroy();
-                    this._oCreateDialog = null;
-                }
-            });
-
-            //Valójában itt nyitjuk meg az új kis ablakot, eddig csak definiáltuk a részeit
-            this._oCreateDialog.open();
-        },
-
-        //Ne a teljes szöveget mutassa a jegyzetnél
-        truncateNote: function(sText) {
-            if (!sText) return "";
-            return sText.length > 30 ? sText.substring(0, 30) + "..." : sText;
         }
 
     });
