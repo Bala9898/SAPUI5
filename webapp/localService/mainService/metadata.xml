@@ -58,7 +58,7 @@
                 <Key>
                     <PropertyRef Name="Licenseplate"/>
                 </Key>
-                <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="char007" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="char007" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="true"/>
                 <Property Name="Manufacturer" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Consumption" Type="Edm.Decimal" Nullable="false" Precision="5" Scale="2" sap:unicode="false" sap:label="Consumption" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>

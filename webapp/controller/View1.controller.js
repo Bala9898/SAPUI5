@@ -14,12 +14,13 @@ sap.ui.define([
     "sap/m/Label",
     "sap/m/VBox",
     "sap/m/Select",
+    "sap/m/DatePicker",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/model/FilterType",
     "sap/m/Button",
     "sap/ui/model/odata/v4/ODataModel"
-], (Container, Controller, UIComponent, Item, coreLibrary, Fragment, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, Filter, FilterOperator, FilterType, Button, ODataModel) => {
+], (Container, Controller, UIComponent, Item, coreLibrary, Fragment, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, DatePicker, Filter, FilterOperator, FilterType, Button, ODataModel) => {
     "use strict";
 
     const ValueState = coreLibrary.ValueState;
@@ -112,9 +113,51 @@ sap.ui.define([
 				return;
 			}
 
-			this.byId("lpI").setValue(oSelectedItem.getTitle());
+			this.byId("lpInput").setValue(oSelectedItem.getTitle());
+
+            this.handleFilter({ getParameter: () => oSelectedItem.getTitle() });
 		},
 
+//Create entity tweaking        
+        onCreateValueHelpRequest: function (oEvent) {
+            var sInputValue = oEvent.getSource().getValue(),
+                oView = this.getView();
+
+            if (!this._pValueHelpDialog) {
+                this._pValueHelpDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "bbroadr.view.fragments.CreateValueHelpDialog",
+                    controller: this
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
+            this._pValueHelpDialog.then(function(oDialog) {
+                // Create a filter for the binding
+                oDialog.getBinding("items").filter([new Filter("Licenseplate", FilterOperator.Contains, sInputValue)]);
+                // Open ValueHelpDialog filtered by the input's value
+                oDialog.open(sInputValue);
+            });
+        },
+
+        onCreateValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value");
+            var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
+
+            oEvent.getSource().getBinding("items").filter([oFilter]);
+        },
+
+        onCreateValueHelpClose: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            oEvent.getSource().getBinding("items").filter([]);
+
+            if (!oSelectedItem) {
+                return;
+            }
+
+            this.oInputLp.setValue(oSelectedItem.getTitle());
+        },
 
 //***************************************************************************************************************************************************************
 
@@ -132,7 +175,7 @@ sap.ui.define([
             var oStatus = oFilterModel.getProperty("/status");
             var oZmonth= oFilterModel.getProperty("/zmonth");
             var sZyear = oView.byId("ZyearDP").getValue();
-            var sLicenseplate = oView.byId("LicenseplateSF").getValue().toUpperCase();
+            var sLicenseplate = oView.byId("lpInput").getValue().toUpperCase();
             var aFilters = [];
 
             //Filterek beállítása
@@ -146,7 +189,7 @@ sap.ui.define([
                 aFilters.push(new Filter("Zmonth", FilterOperator.EQ, oZmonth));
             }
             if (sLicenseplate) {
-                aFilters.push(new Filter("Licenseplate", FilterOperator.EQ, sLicenseplate));
+                aFilters.push(new Filter("Licenseplate", FilterOperator.Contains, sLicenseplate));
             }
 
             //Filtering
@@ -169,20 +212,48 @@ sap.ui.define([
             }
 
             //Beviteli mezők definiálása, ahova az adatokat lehet írni
-            this.oInputYear = new Input("inputYear", {
-                placeholder: "Pl. 2025",
-                type: InputType.String
+            this.oInputYear = new DatePicker("inputYear", {
+                placeholder: "Évszám",
+                displayFormat: "yyyy",
+                valueFormat: "yyyy",
+                value: "{Zyear}"
             });
+            /*
+            */
         
-            this.oInputMonth = new Input("inputMonth", {
-                placeholder: "Pl. 07",
-                type: InputType.String
+            this.oInputMonth = new Select("inputMonth", {
+                type: InputType.String,
+                selectedKey: "{filters>/zmonth}",
+                items: [
+                    new Item({ key: "", text: "-- Hónap --" }),
+                    new Item({ key: "01", text: "Január" }),
+                    new Item({ key: "02", text: "Február" }),
+                    new Item({ key: "03", text: "Március" }),
+                    new Item({ key: "04", text: "Április" }),
+                    new Item({ key: "05", text: "Május" }),
+                    new Item({ key: "06", text: "Június" }),
+                    new Item({ key: "07", text: "Július" }),
+                    new Item({ key: "08", text: "Augusztus" }),
+                    new Item({ key: "09", text: "Szeptember" }),
+                    new Item({ key: "10", text: "Október" }),
+                    new Item({ key: "11", text: "November" }),
+                    new Item({ key: "12", text: "December" })
+                ]
             });
 
-            this.oInputLp = new Input("inputLp", {
-                placeholder: "Pl. ABC123",
-                type: InputType.String
-            });
+            this.oInputLp = new Input("lpInput", {
+                placeholder: "Rendszám",
+                type: InputType.String,
+                showSuggestion: true,
+                showValueHelp: true,
+                valueHelpRequest: this.onCreateValueHelpRequest.bind(this),
+                suggestionItems: {
+                    path: "/ZbbvhCarsSet",
+                    template: new Item({
+                        text: "{Licenseplate}"
+                    })
+                }
+            });            
         
             this.oInputKmStart = new Input("inputKmStart", {
                 type: InputType.Number
@@ -231,8 +302,8 @@ sap.ui.define([
                         //Adatok az új rekordhoz
                         var sU = sap.ushell.Container.getService("UserInfo").getId()
                         var sY = this.oInputYear.getValue();
-                        var sM = this.oInputMonth.getValue();
-                        var sLp = this.oInputLp.getValue();
+                        var sM = this.oInputMonth.getSelectedKey();
+                        var sLp = this.oInputLp.getValue().toUpperCase();
                         var iKm = parseInt(this.oInputKmStart.getValue(), 10);
                         var sCurr = this.oSelectCurr.getSelectedKey();
                         var fAvg = this.oInputAvgPrice.getValue();
@@ -259,13 +330,14 @@ sap.ui.define([
                         // Létrehozás az OData modellen
                         oModel.create("/HeaderSet", oNewEntry, {
                             success: function () {
-                                MessageToast.show("A fejsor sikeresen létrehozva.");
+                                MessageBox.success("A fejsor sikeresen létrehozva.");
                             },
                             error: function (oError) {
                                 MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError);
                                 console.error(oError);
                             }
                         });
+                        this._oCreateDialog.close();
                     }                
                 }),                                    
                 endButton: new Button({

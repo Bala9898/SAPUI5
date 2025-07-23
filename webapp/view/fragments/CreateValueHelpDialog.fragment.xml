@@ -1,12 +1,12 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
 	<SelectDialog
-		id="selectDialog"
+		id="selectCreateDialog"
 		title="Rendszámok"
 		items="{/ZbbvhCarsSet}"
-		search=".onValueHelpSearch"
-		confirm=".onValueHelpClose"
-		cancel=".onValueHelpClose">
-		<StandardListItem id="_IDGenStandardListItem"
+		search=".onCreateValueHelpSearch"
+		confirm=".onCreateValueHelpClose"
+		cancel=".onCreateValueHelpClose">
+		<StandardListItem id="_IDGenCreateStandardListItem"
 			iconDensityAware="false"
 			iconInset="false"
 			title="{Licenseplate}"

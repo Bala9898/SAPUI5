@@ -42,12 +42,13 @@
                         <Input
                             id="lpInput"
                             placeholder="Rendszám"
+                            liveChange="handleFilter"
                             showSuggestion="true"
                             showValueHelp="true"
                             valueHelpRequest=".onValueHelpRequest"
-                            suggestionItems="{/ZbbvhCarsSet}">
+                            suggestionItems="{ZbbvhCarsSet}">
                             <suggestionItems>
-                                <core:Item id="lpI" text="{Licenseplate}" />
+                                <core:Item id="lpI" text="{ZbbvhCarsSet/Licenseplate}" />
                             </suggestionItems>
                         </Input>
                         <!--<SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>-->
