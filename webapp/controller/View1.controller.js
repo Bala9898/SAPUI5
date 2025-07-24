@@ -1,11 +1,9 @@
 sap.ui.define([
-    "sap/ushell/Container",
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/UIComponent",
     "sap/ui/core/Item",
     "sap/ui/core/library",
-	"sap/ui/core/Fragment",   
-    "sap/m/MessageToast",
+	"sap/ui/core/Fragment",
     "sap/m/MessageBox",
     "sap/m/Dialog",
     "sap/m/TextArea",
@@ -18,9 +16,8 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/model/FilterType",
-    "sap/m/Button",
-    "sap/ui/model/odata/v4/ODataModel"
-], (Container, Controller, UIComponent, Item, coreLibrary, Fragment, MessageToast, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, DatePicker, Filter, FilterOperator, FilterType, Button, ODataModel) => {
+    "sap/m/Button"
+], (Controller, UIComponent, Item, coreLibrary, Fragment, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, Select, DatePicker, Filter, FilterOperator, FilterType, Button) => {
     "use strict";
 
     const ValueState = coreLibrary.ValueState;
@@ -72,8 +69,36 @@ sap.ui.define([
             this._showCreateDialog();
         },
 
+        //Fejsor módosítása
+        onUpdateHead: function () {
+            this._showUpdateDialog();
+        },
+
+        //Hó végi km kalkuláció
+        onCalc: function() {
+            //Megszerezzük a kiválasztott sorokat
+            const oTable = this.byId("headerTable");
+            const aSelected = oTable.getSelectedItems();
+
+            //Ha nincs kijelölve sor, ekkor visszadobunk egy warningot
+            if (aSelected.length === 0) {
+                MessageBox.warning("Kérlek, jelölj ki legalább egy sort!", {
+                    title: "Figyelmeztetés"
+                });
+                return;
+            }
+
+            aSelected.forEach(oItem => {
+                var oCtx = oItem.getBindingContext();
+                console.log(oCtx);
+                //Egyesével bele kéne menni a kapcsolódó tételekbe és a távolság mezőket hozzáadni, a kezdetihez...
+            })
+
+        },
+
 
 //***************************************************************************************************************************************************************
+
 
 //Value help rendszám táblákhoz
         onValueHelpRequest: function (oEvent) {
@@ -201,7 +226,7 @@ sap.ui.define([
 
 
 //Dialogok
-//Create/update dialog
+//Create dialog
         _showCreateDialog() {
             const oView = this.getView();
             const oModel = oView.getModel();
@@ -330,11 +355,14 @@ sap.ui.define([
                         // Létrehozás az OData modellen
                         oModel.create("/HeaderSet", oNewEntry, {
                             success: function () {
-                                MessageBox.success("A fejsor sikeresen létrehozva.");
+                                MessageBox.success("A fejsor sikeresen létrehozva.", {
+                                    title: "Siker"
+                                });
                             },
                             error: function (oError) {
-                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError);
-                                console.error(oError);
+                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError, {
+                                    title: "Hiba"
+                                });
                             }
                         });
                         this._oCreateDialog.close();
@@ -360,6 +388,156 @@ sap.ui.define([
 
 
 
+//Update_entity dialog
+        _showUpdateDialog() {
+            //Megszerezzük a kiválasztott sorokat
+            const oTable = this.byId("headerTable");
+            const aSelected = oTable.getSelectedItems();
+
+            //Ha nincs kijelölve sor, ekkor visszadobunk egy warningot
+            if (aSelected.length === 0) {
+                MessageBox.warning("Kérlek, jelölj ki egy sort!", {
+                    title: "Figyelmeztetés"
+                });
+                return;
+            }
+
+            //Ha több sor van kijelölve, akkor visszadobunk egy warningot
+            if (aSelected.length > 1) {
+                MessageBox.warning("Kérlek, egy sort jelölj ki!", {
+                    title: "Figyelmeztetés"
+                });
+                return;
+            }
+
+            //Többszörös példányosítás megelőzése
+            if (this._oUpdateDialog) {
+                this._oUpdateDialog.destroy();
+            }
+
+            //Beviteli mezők definiálása, ahova az adatokat lehet írni
+            this.oInputKmStart = new Input("inputKmStart", {
+                type: InputType.Number
+            });
+
+            this.oInputAvgPrice = new Input("inputAvgPrice", {
+                type: InputType.Number
+            });
+
+            this.oSelectCurr = new Select("inputCurr", {
+                items: [
+                    new Item({ key: "HUF", text: "HUF" }),
+                    new Item({ key: "EUR", text: "EUR" }),
+                    new Item({ key: "USD", text: "USD" })
+                ]
+            });
+
+            //Content létrehozása a dialoghoz
+            const oDialogContent = new VBox({
+                items: [
+                    new Label({ text: "Kezdő kilométeróra állás" }),
+                    this.oInputKmStart,
+                    new Label({ text: "Üzemanyag átlagár" }),
+                    this.oInputAvgPrice,
+                    new Label({ text: "Pénznem" }),
+                    this.oSelectCurr
+                ]
+            }).addStyleClass("sapUiSmallMargin");
+
+            //Létrehozzuk a felugró ablakot a szövegmezővel
+            this._oUpdateDialog = new Dialog({
+                title: "Fejsor módosítása",
+                contentWidth: "400px",
+                draggable: true,
+                resizable: true,
+                content: [oDialogContent],
+                beginButton: new Button({
+                    text: "Módosít",
+                    press: () => {
+                        var oModel = this.getView().getModel();
+                        aSelected.forEach(oItem => {
+                            var oCtx = oItem.getBindingContext();
+                            
+                            var sPath = oCtx.getPath();
+
+                            //Adatok az új rekordhoz
+                            if (this.oInputKmStart.getValue() === "")
+                            {
+                                var iKm = oCtx.getProperty("KmStart");
+                            }
+                            else
+                            {
+                                var iKm = parseInt(this.oInputKmStart.getValue(), 10);
+                            }
+                            var sCurr = this.oSelectCurr.getSelectedKey();
+                            if (this.oInputKmStart.getValue() === "")
+                            {
+                                var fAvg = oCtx.getProperty("AvgFuelPrice");
+                            }
+                            else
+                            {
+                                var fAvg = this.oInputAvgPrice.getValue();
+                                if (sCurr === "HUF")
+                                {
+                                    fAvg = fAvg + "00";
+                                }
+                            }
+                            
+                            //Új rekord
+                            const oNewEntry = {
+                                Username: oCtx.getProperty("Username"),
+                                Zyear: oCtx.getProperty("Zyear"),
+                                Zmonth: oCtx.getProperty("Zmonth"),
+                                Licenseplate: oCtx.getProperty("Licenseplate"),
+                                KmStart: iKm,
+                                KmEnd: iKm,
+                                AvgFuelPrice: fAvg,
+                                AvgFuelCurrency: sCurr,
+                                Status: oCtx.getProperty("Status"),
+                                Note: oCtx.getProperty("Note"),
+                                Zcount: oCtx.getProperty("Zcount")
+                            };
+                            
+                            //Módosítás az OData modellen
+                            oModel.update(sPath, oNewEntry, {
+                                success: function () {
+                                    MessageBox.success("A fejsor sikeresen módosítva.", {
+                                        title: "Siker"
+                                    });
+                                },
+                                error: function (oError) {
+                                    MessageBox.error("Hiba történt a módosítás során.\nHiba: " + oError?.message || oError, {
+                                        title: "Hiba"
+                                    });
+                                }
+                            });
+                        });
+
+                        
+                        this._oUpdateDialog.close();
+                    }                
+                }),                                    
+                endButton: new Button({
+                    text: "Mégse",
+                    //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
+                    press: () => {
+                        this._oUpdateDialog.close();
+                    }
+                }),
+                //Eltűntetjük, kinullázzuk a dolgokat
+                afterClose: () => {
+                    this._oUpdateDialog.destroy();
+                    this._oUpdateDialog = null;
+                }
+            });
+
+            //Valójában itt nyitjuk meg az új kis ablakot, eddig csak definiáltuk a részeit
+            this._oUpdateDialog
+            .open();
+        },
+
+
+
 //Elfogadás/elutasítás felugró ablak
         _showReasonDialog(sAction) {
             //Megszerezzük a kiválasztott sorokat
@@ -368,7 +546,9 @@ sap.ui.define([
 
             //Ha nincs kijelölve sor, ekkor visszadobunk egy warningot
             if (aSelected.length === 0) {
-                MessageBox.warning("Kérlek, jelölj ki legalább egy sort!");
+                MessageBox.warning("Kérlek, jelölj ki legalább egy sort!", {
+                    title: "Figyelmeztetés"
+                });
                 return;
             }
 
@@ -444,18 +624,24 @@ sap.ui.define([
                         });                        
                         
                         if (b === false) {
-                            MessageBox.error("Csak OPEN státuszú fejsort/fejsorokat lehet jóváhagyni vagy elutasítani.");
+                            MessageBox.error("Csak OPEN státuszú fejsort/fejsorokat lehet jóváhagyni vagy elutasítani.", {
+                                title: "Hiba"
+                            });
                             sap.ui.core.BusyIndicator.hide();
                         }
                         else {
                             try
                             {
                                 oModel.submitChanges();
-                                MessageBox.success(`${aSelected.length} sor sikeresen ${sAction === "Jóváhagyás" ? "jóváhagyva" : "elutasítva"}.`);
+                                MessageBox.success(`${aSelected.length} sor sikeresen ${sAction === "Jóváhagyás" ? "jóváhagyva" : "elutasítva"}.`, {
+                                    title: "Siker"
+                                });
                             }
                             catch (oError)
                             {
-                                MessageBox.error("Hiba történt az entitás frissítésekor.\nRészletek: " + (oError?.message || oError));
+                                MessageBox.error("Hiba történt az entitás frissítésekor.\nRészletek: " + (oError?.message || oError), {
+                                    title: "Hiba"
+                                });
                             }
                             finally
                             {

@@ -51,10 +51,11 @@
                                 <core:Item id="lpI" text="{ZbbvhCarsSet/Licenseplate}" />
                             </suggestionItems>
                         </Input>
-                        <!--<SearchField id="LicenseplateSF" placeholder="Rendszám" liveChange="handleFilter"/>-->
                         <Button id="CreateHeadButton" text="Új sor" press="onCreateHead"/>
+                        <Button id="UpdateHeadButton" text="Módosítás" press="onUpdateHead"/>
                         <Button id="GroupApproveButton" text="Jóváhagyás" press="onGroupApprove"/>
                         <Button id="GroupRejectButton" text="Elutasítás" press="onGroupReject"/>
+                        <Button id="CalcButton" text="Kalkuláció" press="onCalc"/>
                     </Toolbar>
                 </headerToolbar>
                 <!--Megfelelő oszlopok létrehozása-->
