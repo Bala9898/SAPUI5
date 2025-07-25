@@ -10,7 +10,9 @@
                 id="itemsTable"
                 items="{path: '/ItemSet'}"
                 mode="MultiSelect"
-                inset="false">
+                inset="false"
+                noDataText="Nem található fejsorhoz kapcsolódó tétel.">
+
                 <!--Fejléc létrehozása tételek felvételére, módosítására és létrehozására-->
                 <headerToolbar>
                     <Toolbar id="itemToolbar">

@@ -14,7 +14,7 @@
                 <Property Name="Zmonth" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Hónap" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="Rendszámtábla" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="KmStart" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kezdő kilométeróra állás" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="KmEnd" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kilométeróra hó végén" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="KmEnd" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kilométeróra hó végén" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="AvgFuelPrice" Type="Edm.Decimal" Nullable="false" Precision="6" Scale="1" sap:unicode="false" sap:unit="AvgFuelCurrency" sap:label="Átlagos üzemanyagár" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="AvgFuelCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Üzemanyag átlagár pénznem" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Status" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Státusz" sap:creatable="false" sap:sortable="false"/>
