@@ -17,10 +17,11 @@
                 <headerToolbar>
                     <Toolbar id="itemToolbar">
                         <Title id="itemTitle" text="Tételek lista" level="H2"/>
+                        <Button id="itemBackButton" text="Vissza" press="onBack"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
-                        <Button id="itemCreateButton" text="Új sor" press="onCreateItem"/>
-                        <Button id="itemUpdateButton" text="Módosítás" press="onUpdateItem"/>
-                        <Button id="itemDeleteButton" text="Törlés" press="onDeleteItem"/>
+                        <Button id="itemCreateButton" text="Új sor" press="onCreateItem" type="Accept"/>
+                        <Button id="itemUpdateButton" text="Módosítás" press="onUpdateItem" type="Attention"/>
+                        <Button id="itemDeleteButton" text="Törlés" press="onDeleteItem" type="Reject"/>
                     </Toolbar>
                 </headerToolbar>
                 <!--Megfelelő oszlopok létrehozása-->

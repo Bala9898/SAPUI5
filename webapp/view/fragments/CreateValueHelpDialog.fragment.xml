@@ -5,7 +5,8 @@
 		items="{/ZbbvhCarsSet}"
 		search=".onCreateValueHelpSearch"
 		confirm=".onCreateValueHelpClose"
-		cancel=".onCreateValueHelpClose">
+		cancel=".onCreateValueHelpClose"
+		searchPlaceholder="Keresett rendszám">
 		<StandardListItem id="_IDGenCreateStandardListItem"
 			iconDensityAware="false"
 			iconInset="false"

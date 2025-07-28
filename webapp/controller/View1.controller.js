@@ -83,6 +83,8 @@ sap.ui.define([
             this._showUpdateDialog();
         },
 
+        
+
         //Hó végi km kalkuláció
         onCalc: function () {
             //Megszerezzük a modelt és a kiválasztott sorokat
@@ -91,74 +93,38 @@ sap.ui.define([
             const oView = this.getView();
         
             var oHeaderModel = oView.getModel(); // HeaderSet model
-            var oItemModel = this.getView().getModel("Item"); // ItemSet model
 
-/************************LEHET NEM IS KELL AZ oItemModel, MERT BACKENDEN SZÁMOLÓDIK ÚGYIS A TÁVOLSÁG... DE EGYELŐRE ITT HAGYOM, HA NEM AKARUNK ENNYISZER HOZZÁNYÚLNI A BACKENDHEZ, HANEM CSAK MEGJELENÍTHETŐ LEGYEN, DE FRISSÍTÉS SORÁN ELTŰNIK************************/
-            oItemModel.read("/ItemSet", {
-                success: function (oData) {
-                    //Igazából itt lesznek a tételek
-                    var aAllItems = oData.results;
-            
-                    aSelectedItems.forEach(oItem => {
-                        const oCtx = oItem.getBindingContext();
-                        const oHeader = oCtx.getObject();
-                        var sHeaderPath = oCtx.getPath();
-            
-                        const nKmStart = oHeader.KmStart || 0;
-            
-                        //Kiszűrkük a fejsorhoz kapcsolódó tételeket
-                        var aFilteredItems = aAllItems.filter(item => 
-                            item.Licenseplate === oCtx.getProperty("Licenseplate") &&
-                            item.Zyear === oCtx.getProperty("Zyear") &&
-                            item.Zmonth === oCtx.getProperty("Zmonth") &&
-                            item.Username === oCtx.getProperty("Username")
-                        );
-            
-                        //Kiszámoljuk a tételek távolságát és ezután a teljes távot
-                        var nTotalDistance = aFilteredItems.reduce((sum, item) => {
-                            return sum + parseFloat(item.Distance || 0);
-                        }, 0);
-                        var nKmEnd = nKmStart + nTotalDistance;
-            
-                        ///Új rekord
-                        var oNewEntry = {
-                            Username: oCtx.getProperty("Username"),
-                            Zyear: oCtx.getProperty("Zyear"),
-                            Zmonth: oCtx.getProperty("Zmonth"),
-                            Licenseplate: oCtx.getProperty("Licenseplate"),
-                            KmStart: oCtx.getProperty("KmStart"),
-                            KmEnd: nKmEnd,
-                            AvgFuelPrice: oCtx.getProperty("AvgFuelPrice"),
-                            AvgFuelCurrency: oCtx.getProperty("AvgFuelCurrency"),
-                            Status: oCtx.getProperty("Status"),
-                            Note: oCtx.getProperty("Note"),
-                            Zcount: oCtx.getProperty("Zcount")
-                        };
+            aSelectedItems.forEach(oItem => {
+                const oCtx = oItem.getBindingContext();
+                var sHeaderPath = oCtx.getPath();
 
-                        //Model lekérése és út módosítása
-                        
-                        
-                        console.log(oCtx.getObject());
-                        //Módosítás az OData modellen
-                        oHeaderModel.update(sHeaderPath, oNewEntry, {
-                            success: function () { }, //Ide belefut, de nem updatel
-                            error: function (oError) {
-                                MessageBox.error("Hiba történt a módosítás során.\nHiba: " + oError?.message || oError, {
-                                    title: "Hiba"
-                                });
-                            }
+                //Új rekord
+                var oNewEntry = {
+                    Username: oCtx.getProperty("Username"),
+                    Zyear: oCtx.getProperty("Zyear"),
+                    Zmonth: oCtx.getProperty("Zmonth"),
+                    Licenseplate: oCtx.getProperty("Licenseplate"),
+                    KmStart: oCtx.getProperty("KmStart"),
+                    KmEnd: 0,
+                    AvgFuelPrice: oCtx.getProperty("AvgFuelPrice"),
+                    AvgFuelCurrency: oCtx.getProperty("AvgFuelCurrency"),
+                    Status: oCtx.getProperty("Status"),
+                    Note: oCtx.getProperty("Note"),
+                    Zcount: oCtx.getProperty("Zcount")
+                };
+                //Módosítás az OData modellen
+                oHeaderModel.update(sHeaderPath, oNewEntry, {
+                    success: function () { }, 
+                    error: function (oError) {
+                        MessageBox.error("Hiba történt a módosítás során.\nHiba: " + oError?.message || oError, {
+                            title: "Hiba"
                         });
-                        console.log(oCtx.getObject());
-                    });
-                },
-            
-                error: function (err) {
-                    MessageBox.error("Hiba a kapcsolódó tételek betöltése közben:", err, {
-                        title: "Hiba"
-                    });
-                }
+                    }
+                });
             });
         },
+
+
 
         //Ha változik a sorkijelölés, akkor ellenőrizzük, hogy mindegyik OPEN státuszú-e
         onSelectionChange: function (oEvent) {
@@ -226,7 +192,7 @@ sap.ui.define([
 		},
 
 		onValueHelpSearch: function (oEvent) {
-			var sValue = oEvent.getParameter("value");
+			var sValue = oEvent.getParameter("value").toUpperCase();
 			var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
 
 			oEvent.getSource().getBinding("items").filter([oFilter]);
@@ -244,6 +210,8 @@ sap.ui.define([
 
             this.handleFilter({ getParameter: () => oSelectedItem.getTitle() });
 		},
+
+
 
 //Create entity tweaking        
         onCreateValueHelpRequest: function (oEvent) {
@@ -269,7 +237,7 @@ sap.ui.define([
         },
 
         onCreateValueHelpSearch: function (oEvent) {
-            var sValue = oEvent.getParameter("value");
+            var sValue = oEvent.getParameter("value").toUpperCase();
             var oFilter = new Filter("Licenseplate", FilterOperator.Contains, sValue);
 
             oEvent.getSource().getBinding("items").filter([oFilter]);
@@ -282,9 +250,10 @@ sap.ui.define([
             if (!oSelectedItem) {
                 return;
             }
-
+            
             this.oInputLp.setValue(oSelectedItem.getTitle());
         },
+
 
 //***************************************************************************************************************************************************************
 
@@ -345,8 +314,6 @@ sap.ui.define([
                 valueFormat: "yyyy",
                 value: "{Zyear}"
             });
-            /*
-            */
         
             this.oInputMonth = new Select("inputMonth", {
                 type: InputType.String,
@@ -368,7 +335,7 @@ sap.ui.define([
                 ]
             });
 
-            this.oInputLp = new Input("lpInput", {
+            this.oInputLp = new Input("lpCreateInput", {
                 placeholder: "Rendszám",
                 type: InputType.String,
                 showSuggestion: true,
@@ -543,7 +510,6 @@ sap.ui.define([
                         var oModel = this.getView().getModel();
                         aSelected.forEach(oItem => {
                             var oCtx = oItem.getBindingContext();
-                            
                             var sPath = oCtx.getPath();
 
                             //Adatok az új rekordhoz
@@ -665,9 +631,7 @@ sap.ui.define([
                         //Végig loopolunk a kiválasztott sorokon
                         aSelected.forEach(oItem => {
                             var oCtx = oItem.getBindingContext();
-
                             var sStatus = oCtx.getProperty("Status");
-
                             var sPath = oCtx.getPath();
                             sStatus = sAction === "Jóváhagyás" ? "APPROVED" : "DECLINED";
                         

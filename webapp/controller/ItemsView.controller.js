@@ -30,6 +30,21 @@ sap.ui.define([
           oBinding.filter(oFilter);
       },
 
+
+//**************************************************************************************************************************************************************************
+
+
+//Gomb funkciók
+      onBack: function() {
+        var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+        oRouter.navTo("RouteView1", {}, true);
+      },
+
+
+//**************************************************************************************************************************************************************************
+
+
+//Formatterek
       //Tételazonosító formázás
       formatItemId: function(value) {
         const n = parseInt(value);
