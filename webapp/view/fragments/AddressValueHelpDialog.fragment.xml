@@ -1,0 +1,16 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="selectDialogAddress"
+		title="Címek"
+		items="{/ZbbvhAddresslistSet}"
+		search=".onAddressValueHelpSearch"
+		confirm=".onAddressValueHelpClose"
+		cancel=".onAddressValueHelpClose"
+		searchPlaceholder="Keresett cím">
+		<StandardListItem id="_IDGenStandardListItemAddress"
+			iconDensityAware="false"
+			iconInset="false"
+			title="{Serialnumber}"
+			description="{Country} {PostCode} {City}, {Street} {HouseNumber}."/>
+	</SelectDialog>
+</core:FragmentDefinition>

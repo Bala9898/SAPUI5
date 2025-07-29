@@ -59,7 +59,8 @@ sap.ui.define([
             router.navTo("RouteItemsView", {
                 Zyear: oData.Zyear,
                 Zmonth: oData.Zmonth,
-                Licenseplate: oData.Licenseplate
+                Licenseplate: oData.Licenseplate,
+                Status: oData.Status
             });
         },
 

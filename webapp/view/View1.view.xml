@@ -53,8 +53,8 @@
                             </suggestionItems>
                         </Input>
                         <Button id="CreateHeadButton" text="Új sor" press="onCreateHead" tooltip="Új fejsor létrehozására szolgál" type="Emphasized"/>
-                        <Button id="UpdateHeadButton" text="Módosítás" press="onUpdateHead" enabled="{control>/uOpen}" tooltip="A kijelölt sor bizonyos értékeit lehet megváltoztatni vele" type="Emphasized"/>
-                        <Button id="CalcButton" text="Kalkuláció" press="onCalc" enabled="{control>/open}" tooltip="Frissíti a kijelölt sorok hó végi km állását" type="Attention"/>
+                        <Button id="CalcButton" text="Kalkuláció" press="onCalc" enabled="{control>/open}" tooltip="Frissíti a kijelölt sorok hó végi km állását" type="Emphasized"/>
+                        <Button id="UpdateHeadButton" text="Módosítás" press="onUpdateHead" enabled="{control>/uOpen}" tooltip="A kijelölt sor bizonyos értékeit lehet megváltoztatni vele" type="Attention"/>
                         <Button id="GroupApproveButton" text="Jóváhagyás" press="onGroupApprove" enabled="{control>/open}" tooltip="A kijelölt sorokat el lehet fogadni vele" type="Accept"/>
                         <Button id="GroupRejectButton" text="Elutasítás" press="onGroupReject" enabled="{control>/open}" tooltip="A kijelölt sorokat el lehet utasítani vele" type="Reject"/>
                     </Toolbar>
