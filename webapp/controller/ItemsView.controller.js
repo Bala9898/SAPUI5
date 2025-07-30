@@ -19,7 +19,7 @@ sap.ui.define([
     "use strict";
     
     const InputType = mLibrary.InputType;
-  
+    
     return BaseController.extend("bbroadr.controller.ItemsView", {
       onInit: function () {
         const oRouter = UIComponent.getRouterFor(this);
@@ -31,6 +31,14 @@ sap.ui.define([
           dOpen: false
         });
         this.getView().setModel(oControlModel, "control");
+
+        var oHeaderModel = new sap.ui.model.json.JSONModel({
+          username: "",
+          zyear: "",
+          zmonth: "",
+          lp: ""
+        });
+        this.getView().setModel(oHeaderModel, "header");
 
         var oTable = this.byId("itemsTable");
         oTable.attachSelectionChange(this.onSelectionChange, this);
@@ -45,13 +53,21 @@ sap.ui.define([
         var sZyear = oArgs.Zyear;
         var sZmonth = oArgs.Zmonth;
         var sLicenseplate = oArgs.Licenseplate;
-        
+        var sUsername = oArgs.Username;
+
+        var oHModel = this.getView().getModel("header");
+        oHModel.setProperty("/username", sUsername);
+        oHModel.setProperty("/zyear", sZyear);
+        oHModel.setProperty("/zmonth", sZmonth);
+        oHModel.setProperty("/lp", sLicenseplate);
         
         var oView = this.getView();
         var oList = oView.byId("itemsTable");
         var oBinding = oList.getBinding("items");
+        
         //Megfelelő filterezés
         var oFilter = [
+          new Filter("Username", FilterOperator.EQ, sUsername),
           new Filter("Zyear", FilterOperator.EQ, sZyear),
           new Filter("Zmonth", FilterOperator.EQ, sZmonth),
           new Filter("Licenseplate", FilterOperator.EQ, sLicenseplate)
@@ -116,20 +132,52 @@ sap.ui.define([
         oRouter.navTo("RouteView1", {}, true);
       },
 
-      //Új fejsor létrehozása
+      //Új tételsor létrehozása
       onCreateItem: function () {
         this._showCreateDialog();
       },
 
+      //Tétel(ek) törlése
+      onDeleteItem: function () {
+        const oView = this.getView();
+        var oModel = oView.getModel();
+        const oTable = oView.byId("itemsTable");
+        var aSelectedItems = oTable.getSelectedItems();
+
+        sap.ui.core.BusyIndicator.show(0);
+        //Végig loopolunk a kiválasztott sorokon
+        aSelectedItems.forEach(oItem => {
+          var oCtx = oItem.getBindingContext();
+          var sPath = oCtx.getPath();
+
+          //Majd töröljük azokat
+          oModel.remove(sPath, {
+            success: () => {},
+            error: (oError) => {
+                MessageBox.error("Hiba történt a törlés során.");
+                console.error(oError);
+            }
+          });
+        });
+
+        sap.ui.core.BusyIndicator.hide();
+        MessageBox.success(aSelectedItems.length + " sor törölve lett.");
+      },
+
 
 //**************************************************************************************************************************************************************************
-
+      
 
 //Dialogok
 //Create dialog
       _showCreateDialog() {
         const oView = this.getView();
         const oModel = oView.getModel();
+        const oHModel = oView.getModel("header");
+        const sZyear = oHModel.getProperty("/zyear");
+        const sZmonth = oHModel.getProperty("/zmonth");
+        var oMinDate = new Date(parseInt(sZyear), parseInt(sZmonth) - 1, 1);
+        var oMaxDate = new Date(parseInt(sZyear), parseInt(sZmonth), 0);
 
         //Többszörös példányosítás megelőzése
         if (this._oCreateDialog) {
@@ -166,19 +214,21 @@ sap.ui.define([
         });
 
         this.oInputDate = new DatePicker("dateCreateDP", {
-          placeholder: "Dátum",
+          minDate: oMinDate,
+          maxDate: oMaxDate,
+          valueFormat: "yyyy-MM-dd",
           displayFormat: "yyyy.MM.dd",
-          valueFormat: "yyyy-MM-dd"
+          value: this.formatDateToString(oMinDate)
         });
 
         this.oInputDistance = new Input("distanceCreateInput", {
           placeholder: "Távolság",
-          type: InputType.Int
+          type: InputType.String
         });
 
         this.oInputNote = new Input("noteCreateInput", {
           placeholder: "Jegyzet",
-          type: InputType.string
+          type: InputType.String
         });
 
         //Content létrehozása a dialoghoz
@@ -208,29 +258,22 @@ sap.ui.define([
                 text: "Létrehozás",
                 press: () => {
                     //Adatok az új rekordhoz
-                    var sU = sap.ushell.Container.getService("UserInfo").getId()
                     var sFrom = this.oInputFrom.getValue();
                     var sTo = this.oInputTo.getValue();
-                    var sDate = this.oInputDate.getValue();
-                    console.log(sDate);
+                    var sDate = this.toSAPDateFormat(this.oInputDate.getDateValue());
                     var sDist = this.oInputDistance.getValue();
                     var sNote = this.oInputNote.getValue();
-                    
-                    //var oDate = new Date("2025-07-29T13:38:11"); ezzel sem működik
 
                     //Új rekord
                     const oNewEntry = {
-                        Username: sU, 
-                        Zyear: "", 
-                        Zmonth: "", 
-                        Licenseplate: "",
-                        Itemid: "",
-                        Zfrom: sFrom,
+                        Username: oHModel.getProperty("/username"),
+                        Zyear: oHModel.getProperty("/zyear"),
+                        Zmonth: oHModel.getProperty("/zmonth"),
+                        Licenseplate: oHModel.getProperty("/lp"),
+                        Zfrom: sFrom, 
                         Zto: sTo,
-                        Zdate: sDate, //oDate,
+                        Zdate: sDate,
                         Distance: sDist,
-                        Cost: 0,
-                        CostCurrency: "",
                         Note: sNote
                     };
                     
@@ -360,7 +403,21 @@ sap.ui.define([
             return "0";
         }
         return n.toFixed(2) + " " + currency;
-      }
-    
+      },
+
+      //DatePickerhez dátum formázás
+      formatDateToString: function(oDate) {
+        var yyyy = oDate.getFullYear();
+        var mm = (oDate.getMonth() + 1).toString().padStart(2, "0");
+        var dd = oDate.getDate().toString().padStart(2, "0");
+        return yyyy + "-" + mm + "-" + dd;
+      },
+
+      //Dátum formázás backendre mentéshez
+      toSAPDateFormat: function(date) {
+        const timestamp = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+        return `/Date(${timestamp})/`;
+      },
+      
     });
   });

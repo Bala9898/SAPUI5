@@ -42,8 +42,8 @@ sap.ui.define([
             var oTable = this.byId("headerTable");
             oTable.attachSelectionChange(this.onSelectionChange, this);
 
-            var oItemModel = new sap.ui.model.odata.v2.ODataModel("/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV");
-            this.getView().setModel(oItemModel, "Item");
+            //var oItemModel = new sap.ui.model.odata.v2.ODataModel("/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV");
+            //this.getView().setModel(oItemModel, "Item");
         },        
 
 
@@ -57,6 +57,7 @@ sap.ui.define([
             const router = UIComponent.getRouterFor(this);
             //Belenavigálunk a megfelelő tételekbe
             router.navTo("RouteItemsView", {
+                Username: oData.Username,
                 Zyear: oData.Zyear,
                 Zmonth: oData.Zmonth,
                 Licenseplate: oData.Licenseplate,

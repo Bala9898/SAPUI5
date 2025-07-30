@@ -16,7 +16,8 @@
                 <!--Fejléc létrehozása tételek felvételére, módosítására és létrehozására-->
                 <headerToolbar>
                     <Toolbar id="itemToolbar">
-                        <Title id="itemTitle" text="Tételek lista" level="H2"/>
+                        <Title id="itemTitle" text="Tételek:" level="H2"/>
+                        <Label id="headdataLabel" text="Rendszám: {header>/lp}, időintervallum: {header>/zyear}.{header>/zmonth}"/>
                         <Button id="itemBackButton" text="Vissza" press="onBack"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
                         <Button id="itemCreateButton" text="Új sor" press="onCreateItem" type="Accept" enabled="{control>/open}"/>
@@ -31,9 +32,6 @@
                     </Column>
                     <Column id="itemZdateC">
                         <Text id="itemZdateT" text="Dátum"/>
-                    </Column>
-                    <Column id="itemLicenseplateC">
-                        <Text id="itemLicenseplateT" text="Rendszám"/>
                     </Column>
                     <Column id="itemFromC">
                         <Text id="itemFromT" text="Honnan"/>
@@ -57,7 +55,6 @@
                         <cells>
                             <Text id="itemIidCell" text="{ path: 'Itemid', formatter: '.formatItemId' }"/>
                             <Text id="itemZdateCell" text="{ path: 'Zdate', formatter: '.formatDate' }"/>
-                            <Text id="itemLicenseplateCell" text="{Licenseplate}"/>
                             <Text id="itemZFromCell" text="{Zfrom}"/>
                             <Text id="itemZToCell" text="{Zto}"/>
                             <Text id="itemDistanceCell" text="{Distance}"/>

@@ -18,8 +18,8 @@
                 <Property Name="AvgFuelPrice" Type="Edm.Decimal" Nullable="false" Precision="6" Scale="1" sap:unicode="false" sap:unit="AvgFuelCurrency" sap:label="Átlagos üzemanyagár" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="AvgFuelCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Üzemanyag átlagár pénznem" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Status" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Státusz" sap:creatable="false" sap:sortable="false"/>
+                <Property Name="Zcount" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kapcsolódó tétel db szám" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Note" Type="Edm.String" Nullable="false" MaxLength="120" sap:unicode="false" sap:label="Jegyzet" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="Zcount" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kapcsolódó tétel db száma" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityType Name="Item" sap:content-version="1">
                 <Key>
@@ -37,9 +37,9 @@
                 <Property Name="Zfrom" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="char006" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Zto" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="char006" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Zdate" Type="Edm.DateTime" Nullable="false" Precision="7" sap:unicode="false" sap:label="DATN" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="Distance" Type="Edm.Decimal" Nullable="false" Precision="6" Scale="2" sap:unicode="false" sap:label="Útnyilvántartó távolság (km)" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="Cost" Type="Edm.Decimal" Nullable="false" Precision="8" Scale="3" sap:unicode="false" sap:unit="CostCurrency" sap:label="Útnyilvántartó költség" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="CostCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Currency" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
+                <Property Name="Distance" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="Útnyilvántartó távolság (km)" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Cost" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:unit="CostCurrency" sap:label="Útnyilvántartó költség" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="CostCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Currency" sap:creatable="false" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Note" Type="Edm.String" Nullable="false" MaxLength="120" sap:unicode="false" sap:label="Megjegyzés az úthoz" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityType Name="ZbbvhAddresslist" sap:content-version="1">
@@ -58,14 +58,14 @@
                 <Key>
                     <PropertyRef Name="Licenseplate"/>
                 </Key>
-                <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="char007" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="true"/>
+                <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="char007" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Manufacturer" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Consumption" Type="Edm.Decimal" Nullable="false" Precision="5" Scale="2" sap:unicode="false" sap:label="Consumption" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityContainer Name="ZBB_ROAD_REGISTER_PROJECT_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
-                <EntitySet Name="HeaderSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Header" sap:creatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
-                <EntitySet Name="ItemSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Item" sap:creatable="false" sap:updatable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="HeaderSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Header" sap:deletable="false" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ItemSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Item" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhAddresslistSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhAddresslist" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhCarsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhCars" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
             </EntityContainer>
