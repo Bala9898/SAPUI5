@@ -25,6 +25,12 @@ sap.ui.define([
 
     return Controller.extend("bbroadr.controller.View1", {
         onInit() {
+            this.getView().addEventDelegate({
+                onBeforeShow: function () {
+                    // itt frissíted az adatokat
+                    this.getView().getModel().refresh();
+                }.bind(this)
+            });
             var oFilterModel = new sap.ui.model.json.JSONModel({
                 status: "",
                 zyear: "",
@@ -41,9 +47,6 @@ sap.ui.define([
 
             var oTable = this.byId("headerTable");
             oTable.attachSelectionChange(this.onSelectionChange, this);
-
-            //var oItemModel = new sap.ui.model.odata.v2.ODataModel("/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV");
-            //this.getView().setModel(oItemModel, "Item");
         },        
 
 
@@ -89,13 +92,14 @@ sap.ui.define([
 
         //Hó végi km kalkuláció
         onCalc: function () {
+
             //Megszerezzük a modelt és a kiválasztott sorokat
             const oTable = this.byId("headerTable");
             const aSelectedItems = oTable.getSelectedItems();
             const oView = this.getView();
         
             var oHeaderModel = oView.getModel(); // HeaderSet model
-
+            
             aSelectedItems.forEach(oItem => {
                 const oCtx = oItem.getBindingContext();
                 var sHeaderPath = oCtx.getPath();
@@ -107,12 +111,9 @@ sap.ui.define([
                     Zmonth: oCtx.getProperty("Zmonth"),
                     Licenseplate: oCtx.getProperty("Licenseplate"),
                     KmStart: oCtx.getProperty("KmStart"),
-                    KmEnd: 0,
                     AvgFuelPrice: oCtx.getProperty("AvgFuelPrice"),
                     AvgFuelCurrency: oCtx.getProperty("AvgFuelCurrency"),
                     Status: oCtx.getProperty("Status"),
-                    Note: oCtx.getProperty("Note"),
-                    Zcount: oCtx.getProperty("Zcount")
                 };
                 //Módosítás az OData modellen
                 oHeaderModel.update(sHeaderPath, oNewEntry, {
