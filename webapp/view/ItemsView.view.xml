@@ -22,7 +22,7 @@
                         <Label id="headdataLabel" text="Rendszám: {header>/lp}, időintervallum: {header>/zyear}.{header>/zmonth}"/>
                         <Button id="itemBackButton" text="Vissza" press="onBack"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
-                        <Button id="itemShowButton" text="Címek" press="onShowAddress" type="Emphasized" visible="{control>/address}"/>
+                        <Button id="itemShowButton" text="Címek" press="onShowAddress" type="Emphasized" enabled="{control>/open}"/>
                         <Button id="itemCreateButton" text="Új sor" press="onCreateItem" type="Accept" enabled="{control>/open}"/>
                         <Button id="itemUpdateButton" text="Módosítás" press="onUpdateItem" type="Attention" enabled="{control>/uOpen}"/>
                         <Button id="itemDeleteButton" text="Törlés" press="onDeleteItem" type="Reject" enabled="{control>/dOpen}"/>

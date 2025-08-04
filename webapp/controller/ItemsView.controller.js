@@ -153,32 +153,43 @@ sap.ui.define([
 
       onShowAddress: function() {
         const oView = this.getView();
+        var oCModel = oView.getModel("control");
         var oTable = oView.byId("itemsTable");
         const aItems = oTable.getItems();
+        var b = oCModel.getProperty("/address");
 
         aItems.forEach((oItem) => {
           const oContext = oItem.getBindingContext();
           if (!oContext) return;
 
           const oRowData = oContext.getObject();
-
-          const fromFormatted = this.formatAddressName(oRowData.Zfrom);
-          const toFormatted = this.formatAddressName(oRowData.Zto);
-
-          const aCells = oItem.getCells();
-          if (aCells.length >= 4) {
-            aCells[2].setText(fromFormatted); // Honnan
-            aCells[3].setText(toFormatted);   // Hova
+          
+          if (b) {
+            const fromFormatted = this.formatAddressName(oRowData.Zfrom);
+            const toFormatted = this.formatAddressName(oRowData.Zto);
+  
+            const aCells = oItem.getCells();
+            if (aCells.length >= 4) {
+              aCells[2].setText(fromFormatted); // Honnan
+              aCells[3].setText(toFormatted);   // Hova
+            }
+          }
+          else {
+            const aCells = oItem.getCells();
+            if (aCells.length >= 4) {
+              aCells[2].setText(oRowData.Zfrom); // Honnan
+              aCells[3].setText(oRowData.Zto);   // Hova
+            }
           }
         });
+        oView.byId("itemShowButton").setText(!b ? "Címek" : "Kódok");
+
+        oCModel.setProperty("/address", !b);
       },
 
       //Új tételsor létrehozása
       onCreateItem: function () {
         this._showDialog("c");
-        if (this.getView().getModel("control").getProperty("address") === true) {
-          this.onShowAddress();
-        }
       },
 
       onUpdateItem: function () {
@@ -396,8 +407,8 @@ sap.ui.define([
               }),
               //Eltűntetjük, kinullázzuk a dolgokat
               afterClose: () => {
-                  this._oCreateDialog.destroy();
-                  this._oCreateDialog = null;
+                this._oCreateDialog.destroy();
+                this._oCreateDialog = null;
               }
           });
   
@@ -466,9 +477,9 @@ sap.ui.define([
                     // Létrehozás az OData modellen
                     oModel.update(sPath, oNewEntry, {
                         success: function () {
-                            MessageBox.success("Tétel sor sikeresen módosítva.", {
-                                title: "Siker"
-                            });
+                          MessageBox.success("Tétel sor sikeresen módosítva.", {
+                              title: "Siker"
+                          });
                         },
                         error: function (oError) {
                             MessageBox.error("Hiba történt a módosítás során.\nHiba: " + oError?.message || oError, {
@@ -488,8 +499,8 @@ sap.ui.define([
             }),
             //Eltűntetjük, kinullázzuk a dolgokat
             afterClose: () => {
-                this._oUpdateDialog.destroy();
-                this._oUpdateDialog = null;
+              this._oUpdateDialog.destroy();
+              this._oUpdateDialog = null;
             }
           });
 
@@ -506,6 +517,12 @@ sap.ui.define([
       onFromAddressValueHelpRequest: function (oEvent) {
         var sInputValue = oEvent.getSource().getValue(),
           oView = this.getView();
+
+          if (this._pValueHelpDialog) {
+            this._pValueHelpDialog.then(function(oOldDialog) {
+              oOldDialog.destroy();
+            });
+          }
 
         this._pValueHelpDialog = Fragment.load({
           id: oView.getId(),
@@ -527,6 +544,12 @@ sap.ui.define([
       onToAddressValueHelpRequest: function (oEvent) {
         var sInputValue = oEvent.getSource().getValue(),
           oView = this.getView();
+
+        if (this._pValueHelpDialog) {
+          this._pValueHelpDialog.then(function(oOldDialog) {
+            oOldDialog.destroy();
+          });
+        }
 
         this._pValueHelpDialog = Fragment.load({
           id: oView.getId(),
@@ -642,7 +665,6 @@ sap.ui.define([
         var oView = this.getView();
         var oAddressModel = oView.getModel("address");
         var oCModel = oView.getModel("control");
-        oCModel.setProperty("/address", false);
 
         if (!oAddressModel) return code;
 

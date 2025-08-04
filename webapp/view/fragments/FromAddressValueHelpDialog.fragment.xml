@@ -7,10 +7,10 @@
 		confirm=".onFromAddressValueHelpClose"
 		cancel=".onFromAddressValueHelpClose"
 		searchPlaceholder="Keresett cím kódja">
-		<StandardListItem id="_IDGenStandardListItemAddress"
+		<StandardListItem id="StandardListItemAddressFrom"
 			iconDensityAware="false"
 			iconInset="false"
-			title="{Country} {PostCode} {City}, {Street} {HouseNumber}. ez a from ablak"
+			title="{Country} {PostCode} {City}, {Street} {HouseNumber}."
 			description="{SerialNumber}"/>
 	</SelectDialog>
 </core:FragmentDefinition>
