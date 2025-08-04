@@ -12,7 +12,8 @@
                 items="{path: '/HeaderSet'}"
                 mode="MultiSelect"
                 inset="false"
-                noDataText="Nem található a felhasználóhoz fejsor.">
+                noDataText="Nem található a felhasználóhoz fejsor."
+                alternateRowColors="true">
                
                 <!--Fejléc rész szűréshez, létrehozáshoz, elfogadás- és elutasításhoz-->
                 <headerToolbar>

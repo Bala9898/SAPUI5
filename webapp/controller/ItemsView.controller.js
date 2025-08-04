@@ -22,16 +22,16 @@ sap.ui.define([
     
     return BaseController.extend("bbroadr.controller.ItemsView", {
       onInit: function () {
-        const oRouter = UIComponent.getRouterFor(this);
-        oRouter.getRoute("RouteItemsView").attachPatternMatched(this._onRouteMatched, this);
-
+        //Gomb funkciókat állító JSONModel
         var oControlModel = new sap.ui.model.json.JSONModel({
           open: false,
           uOpen: false,
-          dOpen: false
+          dOpen: false,
+          address: true
         });
         this.getView().setModel(oControlModel, "control");
-
+        
+        //Fejsor kulcsokat tartalmazó JSONModel
         var oHeaderModel = new sap.ui.model.json.JSONModel({
           username: "",
           zyear: "",
@@ -39,12 +39,29 @@ sap.ui.define([
           lp: ""
         });
         this.getView().setModel(oHeaderModel, "header");
-
+        
+        // Address Model (OData)
+        var oAddressModel = new sap.ui.model.odata.v2.ODataModel("/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV/",true);
+        oAddressModel.read("/ZbbvhAddresslistSet", {
+          success: function (oData) {
+            var oJsonModel = new sap.ui.model.json.JSONModel(oData);
+            this.getView().setModel(oJsonModel, "address");
+          }.bind(this),
+          error: function (oError) {
+            console.error("Failed to load address list", oError);
+          }
+        });
+        
+        //Tábla kijelölést figyelő rész
         var oTable = this.byId("itemsTable");
         oTable.attachSelectionChange(this.onSelectionChange, this);
+        
+        //Megfelelő tételek mutatása
+        const oRouter = UIComponent.getRouterFor(this);
+        oRouter.getRoute("RouteItemsView").attachPatternMatched(this._onRouteMatched, this);
       },
-      
 
+      
 
       //Igazából filterezés segítségével jelenítjük meg a megfelelő tételeket az adott fejsorhoz és figyeljük, hogy amibe belenavigáltunk az OPEN státuszú-e
       _onRouteMatched: function (oEvent) {
@@ -134,9 +151,34 @@ sap.ui.define([
         oRouter.navTo("RouteView1", {}, true);
       },
 
+      onShowAddress: function() {
+        const oView = this.getView();
+        var oTable = oView.byId("itemsTable");
+        const aItems = oTable.getItems();
+
+        aItems.forEach((oItem) => {
+          const oContext = oItem.getBindingContext();
+          if (!oContext) return;
+
+          const oRowData = oContext.getObject();
+
+          const fromFormatted = this.formatAddressName(oRowData.Zfrom);
+          const toFormatted = this.formatAddressName(oRowData.Zto);
+
+          const aCells = oItem.getCells();
+          if (aCells.length >= 4) {
+            aCells[2].setText(fromFormatted); // Honnan
+            aCells[3].setText(toFormatted);   // Hova
+          }
+        });
+      },
+
       //Új tételsor létrehozása
       onCreateItem: function () {
         this._showDialog("c");
+        if (this.getView().getModel("control").getProperty("address") === true) {
+          this.onShowAddress();
+        }
       },
 
       onUpdateItem: function () {
@@ -462,7 +504,6 @@ sap.ui.define([
 
 //Value help rendszám táblákhoz
       onFromAddressValueHelpRequest: function (oEvent) {
-        console.log("From ablakot nyitom meg");
         var sInputValue = oEvent.getSource().getValue(),
           oView = this.getView();
 
@@ -484,7 +525,6 @@ sap.ui.define([
       },
 
       onToAddressValueHelpRequest: function (oEvent) {
-        console.log("To ablakot nyitom meg");
         var sInputValue = oEvent.getSource().getValue(),
           oView = this.getView();
 
@@ -519,7 +559,6 @@ sap.ui.define([
         if (!oSelectedItem) {
           return;
         }
-        console.log("oInputFrom");
         this.oInputFrom.setValue(oSelectedItem.getDescription());
       },
 
@@ -530,7 +569,6 @@ sap.ui.define([
         if (!oSelectedItem) {
           return;
         }
-        console.log("oInputTo");
         this.oInputTo.setValue(oSelectedItem.getDescription());
       },
 
@@ -598,6 +636,32 @@ sap.ui.define([
         const timestamp = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
         return `/Date(${timestamp})/`;
       },
+
+      //Honnan, hova cím formázása, hogy ne kódokat lásson a felhasználó
+      formatAddressName: function(code) {
+        var oView = this.getView();
+        var oAddressModel = oView.getModel("address");
+        var oCModel = oView.getModel("control");
+        oCModel.setProperty("/address", false);
+
+        if (!oAddressModel) return code;
+
+        var aAddresses = oAddressModel.getProperty("/results");
+        var oMatch = aAddresses.find(function(oAddress) {
+          return oAddress.SerialNumber === code;
+        });
+        
+        if (oMatch) {
+          var Country = oMatch.Country || "";
+          var PostalC = oMatch.PostCode || "";
+          var City = oMatch.City || "";
+          var Street = oMatch.Street || "";
+          var HouseN = oMatch.HouseNumber || "";
+          return Country + " " + PostalC + " " + City + ", " + Street + " " + HouseN + ".";
+        }
       
+        return code;
+      }
+
     });
   });

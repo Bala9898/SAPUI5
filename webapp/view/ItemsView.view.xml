@@ -2,16 +2,18 @@
     controllerName="bbroadr.controller.ItemsView"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m">
-
+    
     <Page id="items" title="{i18n>title}">
-        <VBox id="VBox">
+        <VBox id="dynamicTableContainer">
             <!--Tábla létrehozása a tételekhez-->
             <Table
                 id="itemsTable"
                 items="{path: '/ItemSet'}"
                 mode="MultiSelect"
                 inset="false"
-                noDataText="Nem található fejsorhoz kapcsolódó tétel.">
+                noDataText="Nem található fejsorhoz kapcsolódó tétel."
+                alternateRowColors="true">
+
 
                 <!--Fejléc létrehozása tételek felvételére, módosítására és létrehozására-->
                 <headerToolbar>
@@ -20,6 +22,7 @@
                         <Label id="headdataLabel" text="Rendszám: {header>/lp}, időintervallum: {header>/zyear}.{header>/zmonth}"/>
                         <Button id="itemBackButton" text="Vissza" press="onBack"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
+                        <Button id="itemShowButton" text="Címek" press="onShowAddress" type="Emphasized" visible="{control>/address}"/>
                         <Button id="itemCreateButton" text="Új sor" press="onCreateItem" type="Accept" enabled="{control>/open}"/>
                         <Button id="itemUpdateButton" text="Módosítás" press="onUpdateItem" type="Attention" enabled="{control>/uOpen}"/>
                         <Button id="itemDeleteButton" text="Törlés" press="onDeleteItem" type="Reject" enabled="{control>/dOpen}"/>
@@ -33,10 +36,10 @@
                     <Column id="itemZdateC">
                         <Text id="itemZdateT" text="Dátum"/>
                     </Column>
-                    <Column id="itemFromC">
+                    <Column id="itemFromC" visible="{viewmodel>/code}">
                         <Text id="itemFromT" text="Honnan"/>
                     </Column>
-                    <Column id="itemToC">
+                    <Column id="itemToC" visible="{viewmodel>/code}">
                         <Text id="itemToT" text="Hova"/>
                     </Column>
                     <Column id="itemDistanceC">
