@@ -1,0 +1,43 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+		xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core">
+	<ResponsivePopover
+			id="detailsPopover"
+			title="{title}"
+			class="sapUiResponsivePadding--header"
+			placement="Auto">
+		<endButton>
+			<Button id="_IDGenButton2" text="Cancel" press="handleCancel"/>
+		</endButton>
+		<f:SimpleForm
+				id="appointmentEditForm"
+				editable="false"
+				layout="ResponsiveGridLayout"
+				singleContainerFullSize="false">
+			<Label id="_IDGenLabel"
+					text="Additional information"
+					labelFor="moreInfo"/>
+			<Text id="moreInfoText" text="{text}"/>
+			<Label id="_IDGenLabel1" text="From" labelFor="startDate"/>
+			<Text id="_IDGenText"
+					text="{
+						path: 'startDate',
+						formatter:'.formatDate'
+					}"/>
+			<Label id="_IDGenLabel2" text="To" labelFor="endDate"/>
+			<Text id="_IDGenText1"
+					text="{
+						path: 'endDate',
+						formatter:'.formatDate'
+					}"/>
+			<CheckBox
+					id="allDayText"
+					text="All-day"
+					selected="{allDay>/allDay}"
+					enabled="false"/>
+			<Label id="_IDGenLabel3" text="Type" labelFor="appType"/>
+			<Text id="appTypeText" text="{ path: 'type', formatter: '._typeFormatter'}"/>
+		</f:SimpleForm>
+	</ResponsivePopover>
+</core:FragmentDefinition>

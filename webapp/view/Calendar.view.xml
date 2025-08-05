@@ -1,0 +1,37 @@
+<mvc:View
+	controllerName="bbroadr.controller.Calendar"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:unified="sap.ui.unified"
+	xmlns="sap.m">
+	<VBox id="_IDGenVBox1" class="sapUiSmallMargin">
+		<SinglePlanningCalendar
+			id="SPC1"
+			class="sapUiSmallMarginTop"
+			title= "Naptáram"
+			viewChange="handleViewChange"
+			appointmentSelect="handleAppointmentSelect"
+			headerDateSelect="handleHeaderDateSelect"
+			startDateChange="handleStartDateChange"
+			moreLinkPress="handleMoreLinkPress"
+			startDate="{path: '/startDate'}"
+			stickyMode="{settings>/stickyMode}"
+			appointments="{path: '/appointments'}">
+			<views>
+				<SinglePlanningCalendarMonthView id="_IDGenSinglePlanningCalendarMonthView" key="MonthView" title="Hónap" />
+				<SinglePlanningCalendarWeekView id="_IDGenSinglePlanningCalendarWeekView" key="WeekView" title="Hét" />
+				<SinglePlanningCalendarDayView id="_IDGenSinglePlanningCalendarDayView1" key="DayView" title="Nap" />
+			</views>
+			<appointments>
+				<unified:CalendarAppointment id="_IDGenCalendarAppointment"
+					title= "{title}"
+					text= "{text}"
+					type= "{type}"
+					icon= "{icon}"
+					startDate= "{startDate}"
+					endDate= "{endDate}">
+				</unified:CalendarAppointment>
+			</appointments>
+		</SinglePlanningCalendar>
+	</VBox>
+</mvc:View>

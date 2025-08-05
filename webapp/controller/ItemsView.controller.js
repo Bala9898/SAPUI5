@@ -146,11 +146,26 @@ sap.ui.define([
 
 
 //Gomb funkciók
+      //Naptár mutatása
+      onCalendar: function() {
+        const oView = this.getView();
+        const oHModel = oView.getModel("header");
+        var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+        oRouter.navTo("RouteCalendarView", {
+          Username: oHModel.getProperty("/username"),
+          Zyear: oHModel.getProperty("/zyear"),
+          Zmonth: oHModel.getProperty("/zmonth"),
+          Licenseplate: oHModel.getProperty("/lp")
+        });
+      },
+
+      //Vissza a fejsorok
       onBack: function() {
         var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
         oRouter.navTo("RouteView1", {}, true);
       },
 
+      //Cím vagy kód mutatása
       onShowAddress: function() {
         const oView = this.getView();
         var oCModel = oView.getModel("control");
@@ -192,6 +207,7 @@ sap.ui.define([
         this._showDialog("c");
       },
 
+      //Tétel módosítása
       onUpdateItem: function () {
         this._showDialog("m");
       },

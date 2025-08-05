@@ -114,6 +114,11 @@
           "name": "RouteItemsView",
           "pattern": "ItemsView/{Username}/{Zyear}/{Zmonth}/{Licenseplate}/{Status}",
           "target": "TargetItemsView"
+        },
+        {
+          "name": "RouteCalendarView",
+          "pattern": "Calendar/{Username}/{Zyear}/{Zmonth}/{Licenseplate}",
+          "target": "TargetCalendar"
         }
       ],
       "targets": {
@@ -124,6 +129,11 @@
         "TargetItemsView": {
           "id": "ItemsView",
           "name": "ItemsView",
+          "viewType": "XML"
+        },
+        "TargetCalendar": {
+          "id": "Calendar",
+          "name": "Calendar",
           "viewType": "XML"
         }
       }
