@@ -19,7 +19,7 @@ function(coreLibrary, Fragment, Controller, DateFormat, JSONModel, unifiedLibrar
 	return Controller.extend("bbroadr.controller.Calendar", {
 
 		onInit: function() {
-
+			/*
 			var oModel = new JSONModel();
 			oModel.setData({
 					startDate: UI5Date.getInstance("2018", "6", "9"),
@@ -278,6 +278,7 @@ function(coreLibrary, Fragment, Controller, DateFormat, JSONModel, unifiedLibrar
 			oModel = new JSONModel();
 			oModel.setData({allDay: false});
 			this.getView().setModel(oModel, "allDay");
+			*/
 		},
 
 		_typeFormatter: function(sType) {

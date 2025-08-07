@@ -25,12 +25,6 @@ sap.ui.define([
 
     return Controller.extend("bbroadr.controller.View1", {
         onInit() {
-            this.getView().addEventDelegate({
-                onBeforeShow: function () {
-                    // itt frissíted az adatokat
-                    this.getView().getModel().refresh();
-                }.bind(this)
-            });
             var oFilterModel = new sap.ui.model.json.JSONModel({
                 status: "",
                 zyear: "",
@@ -39,9 +33,16 @@ sap.ui.define([
             });
             this.getView().setModel(oFilterModel, "filters");
 
+            var oChangeModel = new sap.ui.model.json.JSONModel({
+                status: "OPEN",
+                zmonth: "01"
+            });
+            this.getView().setModel(oChangeModel, "change");
+
             var oControlModel = new sap.ui.model.json.JSONModel({
                 open: false,
-                uOpen: false
+                uOpen: false,
+                dOpen: false
             });
             this.getView().setModel(oControlModel, "control");
 
@@ -51,6 +52,21 @@ sap.ui.define([
 
 
 //Függvényhívások
+        //Filterek törlése
+        deleteFilter() {
+            //Adatok megszerezése
+            var oView = this.getView();
+            var oFilterModel = oView.getModel("filters");
+            oFilterModel.setProperty("/status", "");
+            oFilterModel.setProperty("/zyear", "");
+            oFilterModel.setProperty("/zmonth", "");
+            oFilterModel.setProperty("/licenseplate", "");
+
+            this.handleFilter("del");
+
+            oView.getModel("control").setProperty("/dOpen", false);
+        },
+
         //Tételekbe navigálás
         onItemPress(oEvent) {
             //Megszerezzük az adott sort és annak adatait a fejek közül
@@ -211,7 +227,7 @@ sap.ui.define([
 
 			this.byId("lpInput").setValue(oSelectedItem.getTitle());
 
-            this.handleFilter({ getParameter: () => oSelectedItem.getTitle() });
+            this.handleFilter("lp");
 		},
 
 
@@ -254,7 +270,7 @@ sap.ui.define([
                 return;
             }
             
-            this.oInputLp.setValue(oSelectedItem.getTitle());
+            this.oInputCreateLp.setValue(oSelectedItem.getTitle());
         },
 
 
@@ -263,18 +279,40 @@ sap.ui.define([
 
 //Filter
         //Összes szűrés egyben
-        handleFilter: function() {
+        handleFilter: function(f) {
             //Adatok megszerezése
             var oView = this.getView();
-            var sKey = oView.byId("StatusS").getSelectedKey();
-            var mKey = oView.byId("ZmonthS").getSelectedKey();
+            oView.getModel("control").setProperty("/dOpen", true);
             var oFilterModel = this.getView().getModel("filters");
-            oFilterModel.setProperty("/status", sKey);
-            oFilterModel.setProperty("/zmonth", mKey);
             var oStatus = oFilterModel.getProperty("/status");
             var oZmonth= oFilterModel.getProperty("/zmonth");
-            var sZyear = oView.byId("ZyearDP").getValue();
-            var sLicenseplate = oView.byId("lpInput").getValue().toUpperCase();
+            var sZyear = oFilterModel.getProperty("/zyear");
+            var sLicenseplate = oFilterModel.getProperty("/lp");
+
+            switch (f) {
+                case "status":
+                    var sKey = oView.byId("StatusS").getSelectedKey();
+                    oFilterModel.setProperty("/status", sKey);
+                    oStatus = oFilterModel.getProperty("/status");
+                    break;
+                case "zyear":
+                    var yKey = oView.byId("ZyearDP").getValue();
+                    oFilterModel.setProperty("/zyear", yKey);
+                    sZyear = oFilterModel.getProperty("/zyear");
+                    break;
+                case "zmonth":
+                    var mKey = oView.byId("ZmonthS").getSelectedKey();
+                    oFilterModel.setProperty("/zmonth", mKey);
+                    oZmonth= oFilterModel.getProperty("/zmonth");
+                    break;
+                case "lp":
+                    var lKey = oView.byId("lpInput").getValue().toUpperCase();
+                    oFilterModel.setProperty("/lp", lKey);
+                    sLicenseplate = oFilterModel.getProperty("/lp");
+                    break;
+                default:
+                    break;
+            }
             var aFilters = [];
 
             //Filterek beállítása
@@ -304,6 +342,7 @@ sap.ui.define([
         _showCreateDialog() {
             const oView = this.getView();
             const oModel = oView.getModel();
+            //console.log(oModel.getContext("/ZbbvhMonthsSet"));
 
             //Többszörös példányosítás megelőzése
             if (this._oCreateDialog) {
@@ -320,7 +359,14 @@ sap.ui.define([
         
             this.oInputMonth = new Select("inputMonth", {
                 type: InputType.String,
-                selectedKey: "{filters>/zmonth}",
+                items: {
+                    path: "/HeaderSet",
+                    template: new Item({
+                        key: "{Zmonth}",
+                        text: "{Zmonth}"
+                    })
+                }
+                /*
                 items: [
                     new Item({ key: "", text: "-- Hónap --" }),
                     new Item({ key: "01", text: "Január" }),
@@ -336,9 +382,17 @@ sap.ui.define([
                     new Item({ key: "11", text: "November" }),
                     new Item({ key: "12", text: "December" })
                 ]
+                items: {
+                    path: "/ZbbvhMonthsSet",
+                    template: new Item({
+                        key: "{DomvalueL}",
+                        text: "{Ddtext}"
+                    })
+                }
+                */
             });
 
-            this.oInputLp = new Input("lpCreateInput", {
+            this.oInputCreateLp = new Input("lpCreateInput", {
                 placeholder: "Rendszám",
                 type: InputType.String,
                 showSuggestion: true,
@@ -376,7 +430,7 @@ sap.ui.define([
                     new Label({ text: "Hónap" }),
                     this.oInputMonth,
                     new Label({ text: "Rendszámtábla" }),
-                    this.oInputLp,
+                    this.oInputCreateLp,
                     new Label({ text: "Kezdő kilométeróra állás" }),
                     this.oInputKmStart,
                     new Label({ text: "Üzemanyag átlagár" }),
@@ -400,7 +454,7 @@ sap.ui.define([
                         var sU = sap.ushell.Container.getService("UserInfo").getId()
                         var sY = this.oInputYear.getValue();
                         var sM = this.oInputMonth.getSelectedKey();
-                        var sLp = this.oInputLp.getValue().toUpperCase();
+                        var sLp = this.oInputCreateLp.getValue().toUpperCase();
                         var iKm = parseInt(this.oInputKmStart.getValue(), 10);
                         var sCurr = this.oSelectCurr.getSelectedKey();
                         var fAvg = this.oInputAvgPrice.getValue();
@@ -722,6 +776,16 @@ sap.ui.define([
                 "12": "December"
             };
             return months[value];
+        },
+
+        //Státusz formázása
+        formatStatusText: function (value) {
+            const status = {
+                "APPROVED": "Jóváhagyott",
+                "DECLINED": "Elutasított",
+                "OPEN": "Nyitott"
+            };
+            return status[value];
         },
 
         //Státusz színezés

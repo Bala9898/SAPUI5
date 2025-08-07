@@ -19,32 +19,18 @@
                 <headerToolbar>
                     <Toolbar id="Toolbar">
                         <ToolbarSpacer id="ToolbarSpacer"/>
-                        <Select id="StatusS" type="Default" selectedKey="{filters>/status}" change="handleFilter">
-                            <core:Item id="uresI" key="" text="-- Státusz --" />
-                            <core:Item id="openI" key="OPEN" text="OPEN" />
-                            <core:Item id="apprI" key="APPROVED" text="APPROVED" />
-                            <core:Item id="decI" key="DECLINED" text="DECLINED" />
+                        <Button id="DeleteFilter" text="Törlés" press="deleteFilter" type="Reject" enabled="{control>/dOpen}"/>
+                        <Select id="StatusS" type="Default" selectedKey="{change>/status}" change="handleFilter('status')" items="{path: '/ZbbvhStatusSet'}">
+                            <core:Item id="sI" key="{DomvalueL}" text="{Ddtext}" />
                         </Select>
-                        <DatePicker id="ZyearDP" value="{Zyear}" displayFormat="yyyy" valueFormat="yyyy" placeholder="Évszám" change="handleFilter"/>
-                        <Select id="ZmonthS" type="Default" change="handleFilter" selectedKey="filters>/zmonth">
-                            <core:Item id="m0" key="" text="-- Hónap --" />
-                            <core:Item id="m1" key="01" text="Január" />
-                            <core:Item id="m2" key="02" text="Február" />
-                            <core:Item id="m3" key="03" text="Március" />
-                            <core:Item id="m4" key="04" text="Április" />
-                            <core:Item id="m5" key="05" text="Május" />
-                            <core:Item id="m6" key="06" text="Június" />
-                            <core:Item id="m7" key="07" text="Július" />
-                            <core:Item id="m8" key="08" text="Augusztus" />
-                            <core:Item id="m9" key="09" text="Szeptember" />
-                            <core:Item id="m10" key="10" text="Október" />
-                            <core:Item id="m11" key="11" text="November" />
-                            <core:Item id="m12" key="12" text="December" />
+                        <DatePicker id="ZyearDP" value="{Zyear}" displayFormat="yyyy" valueFormat="yyyy" placeholder="Évszám" change="handleFilter('zyear')"/>
+                        <Select id="ZmonthS" type="Default" change="handleFilter('zmonth')" selectedKey="change>/zmonth" items="{path: '/ZbbvhMonthsSet'}">
+                            <core:Item id="m0" key="{DomvalueL}" text="{Ddtext}" />
                         </Select>
                         <Input
                             id="lpInput"
                             placeholder="Rendszám"
-                            liveChange="handleFilter"
+                            liveChange="handleFilter('lp')"
                             showSuggestion="true"
                             showValueHelp="true"
                             valueHelpRequest=".onValueHelpRequest"
@@ -94,7 +80,7 @@
                 <items>
                     <ColumnListItem id="ColumnListItem" press="onItemPress" type="Active">
                         <cells>
-                            <ObjectStatus id="StatusCell" text="{Status}" state="{ path: 'Status', formatter: '.formatStatusColor' }"/>
+                            <ObjectStatus id="StatusCell" text="{ path: 'Status', formatter: '.formatStatusText' }" state="{ path: 'Status', formatter: '.formatStatusColor' }"/>
                             <Text id="ZyearCell" text="{Zyear}"/>
                             <Text id="ZmonthCell" text="{ path: 'Zmonth', formatter: '.formatMonthText' }"/>
                             <Text id="LicenseplateCell" text="{Licenseplate}"/>

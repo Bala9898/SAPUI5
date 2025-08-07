@@ -63,11 +63,27 @@
                 <Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Consumption" Type="Edm.Decimal" Nullable="false" Precision="5" Scale="2" sap:unicode="false" sap:label="Consumption" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
+            <EntityType Name="ZbbvhMonths" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DomvalueL"/>
+                </Key>
+                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZbbvhStatus" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DomvalueL"/>
+                </Key>
+                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
             <EntityContainer Name="ZBB_ROAD_REGISTER_PROJECT_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
                 <EntitySet Name="HeaderSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Header" sap:deletable="false" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ItemSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Item" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhAddresslistSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhAddresslist" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhCarsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhCars" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZbbvhMonthsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhMonths" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZbbvhStatusSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhStatus" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
             </EntityContainer>
             <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
             <atom:link rel="self" href="http://35.207.190.137:50000/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
