@@ -270,7 +270,7 @@ sap.ui.define([
                 return;
             }
             
-            this.oInputCreateLp.setValue(oSelectedItem.getTitle());
+            this.byId("lpCreateInput").setValue(oSelectedItem.getTitle());
         },
 
 
@@ -339,177 +339,77 @@ sap.ui.define([
 
 //Dialogok
 //Create dialog
-        _showCreateDialog() {
+        _showCreateDialog: function () {
             const oView = this.getView();
-            const oModel = oView.getModel();
-            //console.log(oModel.getContext("/ZbbvhMonthsSet"));
 
-            //Többszörös példányosítás megelőzése
+            // Destroy if exists
             if (this._oCreateDialog) {
                 this._oCreateDialog.destroy();
+                this._oCreateDialog = null;
             }
 
-            //Beviteli mezők definiálása, ahova az adatokat lehet írni
-            this.oInputYear = new DatePicker("inputYear", {
-                placeholder: "Évszám",
-                displayFormat: "yyyy",
-                valueFormat: "yyyy",
-                value: "{Zyear}"
+            // Load fragment
+            Fragment.load({
+                id: oView.getId(),
+                name: "bbroadr.view.fragments.CreateHeaderDialog",
+                controller: this
+            }).then((oDialog) => {
+                this._oCreateDialog = oDialog;
+                oView.addDependent(this._oCreateDialog);
+                this._oCreateDialog.open();
             });
-        
-            this.oInputMonth = new Select("inputMonth", {
-                type: InputType.String,
-                items: {
-                    path: "/HeaderSet",
-                    template: new Item({
-                        key: "{Zmonth}",
-                        text: "{Zmonth}"
-                    })
-                }
-                /*
-                items: [
-                    new Item({ key: "", text: "-- Hónap --" }),
-                    new Item({ key: "01", text: "Január" }),
-                    new Item({ key: "02", text: "Február" }),
-                    new Item({ key: "03", text: "Március" }),
-                    new Item({ key: "04", text: "Április" }),
-                    new Item({ key: "05", text: "Május" }),
-                    new Item({ key: "06", text: "Június" }),
-                    new Item({ key: "07", text: "Július" }),
-                    new Item({ key: "08", text: "Augusztus" }),
-                    new Item({ key: "09", text: "Szeptember" }),
-                    new Item({ key: "10", text: "Október" }),
-                    new Item({ key: "11", text: "November" }),
-                    new Item({ key: "12", text: "December" })
-                ]
-                items: {
-                    path: "/ZbbvhMonthsSet",
-                    template: new Item({
-                        key: "{DomvalueL}",
-                        text: "{Ddtext}"
-                    })
-                }
-                */
-            });
+        },
 
-            this.oInputCreateLp = new Input("lpCreateInput", {
-                placeholder: "Rendszám",
-                type: InputType.String,
-                showSuggestion: true,
-                showValueHelp: true,
-                valueHelpRequest: this.onCreateValueHelpRequest.bind(this),
-                suggestionItems: {
-                    path: "/ZbbvhCarsSet",
-                    template: new Item({
-                        text: "{Licenseplate}"
-                    })
-                }
-            });            
+        onCreateSubmit: function () {
+            const oModel = this.getView().getModel();
+            const sU = sap.ushell.Container.getService("UserInfo").getId();
         
-            this.oInputKmStart = new Input("inputKmStart", {
-                type: InputType.Number
-            });
+            const sY = this.byId("inputYear").getValue();
+            const sM = this.byId("inputMonth").getSelectedKey();
+            const sLp = this.byId("lpCreateInput").getValue().toUpperCase();
+            const iKm = parseInt(this.byId("inputKmStart").getValue(), 10);
+            let fAvg = this.byId("inputAvgPrice").getValue();
+            const sCurr = this.byId("inputCurr").getSelectedKey();
         
-            this.oInputAvgPrice = new Input("inputAvgPrice", {
-                type: InputType.Number
-            });
+            if (sCurr === "HUF") {
+                fAvg += "00";
+            }
         
-            this.oSelectCurr = new Select("inputCurr", {
-                items: [
-                    new Item({ key: "HUF", text: "HUF" }),
-                    new Item({ key: "EUR", text: "EUR" }),
-                    new Item({ key: "USD", text: "USD" })
-                ]
-            });
-
-            //Content létrehozása a dialoghoz
-            const oDialogContent = new VBox({
-                items: [
-                    new Label({ text: "Év" }),
-                    this.oInputYear,
-                    new Label({ text: "Hónap" }),
-                    this.oInputMonth,
-                    new Label({ text: "Rendszámtábla" }),
-                    this.oInputCreateLp,
-                    new Label({ text: "Kezdő kilométeróra állás" }),
-                    this.oInputKmStart,
-                    new Label({ text: "Üzemanyag átlagár" }),
-                    this.oInputAvgPrice,
-                    new Label({ text: "Pénznem" }),
-                    this.oSelectCurr
-                ]
-            }).addStyleClass("sapUiSmallMargin");
-
-            //Létrehozzuk a felugró ablakot a szövegmezővel
-            this._oCreateDialog = new Dialog({
-                title: "Új fejsor létrehozása",
-                contentWidth: "400px",
-                draggable: true,
-                resizable: true,
-                content: [oDialogContent],
-                beginButton: new Button({
-                    text: "Létrehozás",
-                    press: () => {
-                        //Adatok az új rekordhoz
-                        var sU = sap.ushell.Container.getService("UserInfo").getId()
-                        var sY = this.oInputYear.getValue();
-                        var sM = this.oInputMonth.getSelectedKey();
-                        var sLp = this.oInputCreateLp.getValue().toUpperCase();
-                        var iKm = parseInt(this.oInputKmStart.getValue(), 10);
-                        var sCurr = this.oSelectCurr.getSelectedKey();
-                        var fAvg = this.oInputAvgPrice.getValue();
-                        if (sCurr === "HUF")
-                        {
-                            fAvg = fAvg + "00";
-                        }
-                        
-                        //Új rekord
-                        const oNewEntry = {
-                            Username: sU, 
-                            Zyear: sY, 
-                            Zmonth: sM, 
-                            Licenseplate: sLp,
-                            KmStart: iKm,
-                            KmEnd: iKm,
-                            AvgFuelPrice: fAvg,
-                            AvgFuelCurrency: sCurr,
-                            Status: "OPEN",
-                            Note: "",
-                            Zcount: 0
-                        };
-                        
-                        // Létrehozás az OData modellen
-                        oModel.create("/HeaderSet", oNewEntry, {
-                            success: function () {
-                                MessageBox.success("A fejsor sikeresen létrehozva.", {
-                                    title: "Siker"
-                                });
-                            },
-                            error: function (oError) {
-                                MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + oError?.message || oError, {
-                                    title: "Hiba"
-                                });
-                            }
-                        });
-                        this._oCreateDialog.close();
-                    }                
-                }),                                    
-                endButton: new Button({
-                    text: "Mégse",
-                    //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
-                    press: () => {
-                        this._oCreateDialog.close();
-                    }
-                }),
-                //Eltűntetjük, kinullázzuk a dolgokat
-                afterClose: () => {
-                    this._oCreateDialog.destroy();
-                    this._oCreateDialog = null;
+            const oNewEntry = {
+                Username: sU,
+                Zyear: sY,
+                Zmonth: sM,
+                Licenseplate: sLp,
+                KmStart: iKm,
+                KmEnd: iKm,
+                AvgFuelPrice: fAvg,
+                AvgFuelCurrency: sCurr,
+                Status: "OPEN",
+                Note: "",
+                Zcount: 0
+            };
+        
+            oModel.create("/HeaderSet", oNewEntry, {
+                success: () => {
+                    MessageBox.success("A fejsor sikeresen létrehozva.", { title: "Siker" });
+                },
+                error: (oError) => {
+                    MessageBox.error("Hiba történt a létrehozás során.\nHiba: " + (oError?.message || oError), {
+                        title: "Hiba"
+                    });
                 }
             });
+        
+            this._oCreateDialog.close();
+        },
 
-            //Valójában itt nyitjuk meg az új kis ablakot, eddig csak definiáltuk a részeit
-            this._oCreateDialog.open();
+        onDialogCancel: function () {
+            this._oCreateDialog.close();
+        },
+        
+        onDialogAfterClose: function () {
+            this._oCreateDialog.destroy();
+            this._oCreateDialog = null;
         },
 
 

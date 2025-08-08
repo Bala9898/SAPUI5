@@ -1,0 +1,65 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Dialog
+        id="createDialog"
+        title="Új fejsor létrehozása"
+        contentWidth="400px"
+        draggable="true"
+        resizable="true"
+        afterClose=".onDialogAfterClose">
+        
+        <VBox id="_IDGenVBox2" class="sapUiSmallMargin">
+            <Label id="_IDGenLabel5" text="Év" />
+            <DatePicker
+                id="inputYear"
+                placeholder="Évszám"
+                displayFormat="yyyy"
+                valueFormat="yyyy"
+                value="{Zyear}" />
+            
+            <Label id="_IDGenLabel6" text="Hónap" />
+            <Select
+                id="inputMonth"
+                items="{
+                    path: '/ZbbvhMonthsSet'
+                }">
+                <core:Item id="_IDGenItem" key="{DomvalueL}" text="{Ddtext}" />
+            </Select>
+
+            <Label id="_IDGenLabel7" text="Rendszámtábla" />
+            <Input
+                id="lpCreateInput"
+                placeholder="Rendszám"
+                type="Text"
+                showSuggestion="true"
+                showValueHelp="true"
+                valueHelpRequest=".onCreateValueHelpRequest"
+                suggestionItems="{
+                    path: '/ZbbvhCarsSet'
+                }">
+                <core:Item id="_IDGenItem1" text="{Licenseplate}" />
+            </Input>
+
+            <Label id="_IDGenLabel8" text="Kezdő kilométeróra állás" />
+            <Input id="inputKmStart" type="Number" />
+
+            <Label id="_IDGenLabel9" text="Üzemanyag átlagár" />
+            <Input id="inputAvgPrice" type="Number" />
+
+            <Label id="_IDGenLabel10" text="Pénznem" />
+            <Select id="inputCurr">
+                <core:Item id="_IDGenItem2" key="HUF" text="HUF" />
+                <core:Item id="_IDGenItem3" key="EUR" text="EUR" />
+                <core:Item id="_IDGenItem4" key="USD" text="USD" />
+            </Select>
+        </VBox>
+
+        <beginButton>
+            <Button id="_IDGenButton" text="Létrehozás" press=".onCreateSubmit" />
+        </beginButton>
+        <endButton>
+            <Button id="_IDGenButton1" text="Mégse" press=".onDialogCancel" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
