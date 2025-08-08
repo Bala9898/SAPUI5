@@ -680,7 +680,6 @@ sap.ui.define([
       formatAddressName: function(code) {
         var oView = this.getView();
         var oAddressModel = oView.getModel("address");
-        var oCModel = oView.getModel("control");
 
         if (!oAddressModel) return code;
 

@@ -4,17 +4,16 @@
 	xmlns:core="sap.ui.core"
 	xmlns:unified="sap.ui.unified"
 	xmlns="sap.m">
-	<VBox id="_IDGenVBox1" class="sapUiSmallMargin" binding="{ItemSet}">
+	<VBox id="_IDGenVBox1" class="sapUiSmallMargin">
 		<SinglePlanningCalendar
 			id="SPC1"
 			class="sapUiSmallMarginTop"
 			title= "Naptáram"
-			viewChange="handleViewChange"
 			appointmentSelect="handleAppointmentSelect"
 			headerDateSelect="handleHeaderDateSelect"
 			startDateChange="handleStartDateChange"
 			moreLinkPress="handleMoreLinkPress"
-			startDate="{/Zdate}"
+			startDate="{/ItemSet/Zdate}"
 			appointments="{path: '/ItemSet'}">
 			<views>
 				<SinglePlanningCalendarMonthView id="_IDGenSinglePlanningCalendarMonthView" key="MonthView" title="Hónap" />
@@ -23,10 +22,10 @@
 			</views>
 			<appointments>
 				<unified:CalendarAppointment id="_IDGenCalendarAppointment"
-					title="{/Licenseplate}"
-					text="{/Note}"
-					startDate="{/Zdate}"
-					endDate="{/Zdate}">
+					title="{Licenseplate}"
+					text="{Note}"
+					startDate="{Zdate}"
+					endDate="{Zdate}">
 				</unified:CalendarAppointment>
 			</appointments>
 		</SinglePlanningCalendar>
