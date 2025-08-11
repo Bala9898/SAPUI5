@@ -36,7 +36,8 @@ sap.ui.define([
           username: "",
           zyear: "",
           zmonth: "",
-          lp: ""
+          lp: "",
+          status: ""
         });
         this.getView().setModel(oHeaderModel, "header");
         
@@ -71,6 +72,7 @@ sap.ui.define([
         var sZmonth = oArgs.Zmonth;
         var sLicenseplate = oArgs.Licenseplate;
         var sUsername = oArgs.Username;
+        
 
         var oHModel = this.getView().getModel("header");
         oHModel.setProperty("/username", sUsername);
@@ -94,6 +96,7 @@ sap.ui.define([
         //Gombokfunkciókhoz "control" model állítása
         var oCModel = this.getView().getModel("control");
         var sStatus = oArgs.Status;
+        oHModel.setProperty("/status", sStatus);
 
         //Ha OPEN fejsorba navigáltunk, akkor lehet használni a gombokat
         if (sStatus === "OPEN") {
@@ -155,7 +158,8 @@ sap.ui.define([
           Username: oHModel.getProperty("/username"),
           Zyear: oHModel.getProperty("/zyear"),
           Zmonth: oHModel.getProperty("/zmonth"),
-          Licenseplate: oHModel.getProperty("/lp")
+          Licenseplate: oHModel.getProperty("/lp"),
+          Status: oHModel.getProperty("/status")
         });
       },
 
@@ -418,7 +422,21 @@ sap.ui.define([
                   text: "Mégse",
                   //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                   press: () => {
-                      this._oCreateDialog.close();
+                      var that = this;
+
+                      MessageBox.confirm(
+                          "Biztos elveti a módosításokat?",
+                          {
+                              title: "Megerősítés",
+                              actions: ["Igen", "Nem"],
+                              emphasizedAction: "Nem",
+                              onClose: function(oAction) {
+                                  if (oAction === "Igen") {
+                                      that._oCreateDialog.close();
+                                  }
+                              }
+                          }
+                      );
                   }
               }),
               //Eltűntetjük, kinullázzuk a dolgokat
@@ -510,7 +528,21 @@ sap.ui.define([
                 text: "Mégse",
                 //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                 press: () => {
-                    this._oUpdateDialog.close();
+                    var that = this;
+
+                    MessageBox.confirm(
+                        "Biztos elveti a módosításokat?",
+                        {
+                            title: "Megerősítés",
+                            actions: ["Igen", "Nem"],
+                            emphasizedAction: "Nem",
+                            onClose: function(oAction) {
+                                if (oAction === "Igen") {
+                                    that._oUpdateDialog.close();
+                                }
+                            }
+                        }
+                    );
                 }
             }),
             //Eltűntetjük, kinullázzuk a dolgokat

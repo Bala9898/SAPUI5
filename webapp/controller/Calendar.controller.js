@@ -1,22 +1,20 @@
 sap.ui.define([
+	"sap/ui/core/UIComponent",
 	"sap/ui/core/library",
 	"sap/ui/core/Fragment",
 	"sap/ui/core/mvc/Controller",
-	"sap/ui/core/format/DateFormat",
-	"sap/ui/model/json/JSONModel",
-	"sap/ui/unified/library",
-	"sap/m/library",
-	"sap/ui/core/date/UI5Date"
+	"sap/ui/core/format/DateFormat"
 ],
-function(coreLibrary, Fragment, Controller, DateFormat) {
+function(UIComponent, coreLibrary, Fragment, Controller, DateFormat) {
 	"use strict";
 
 	var ValueState = coreLibrary.ValueState;
 
 	return Controller.extend("bbroadr.controller.Calendar", {
 
+		//Kellenek a pontos cím adatok
 		onInit: function() {
-			// Address Model (OData)
+			// Címek modelje (OData)
 			var oAddressModel = new sap.ui.model.odata.v2.ODataModel("/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV/",true);
 			oAddressModel.read("/ZbbvhAddresslistSet", {
 			  success: function (oData) {
@@ -24,11 +22,61 @@ function(coreLibrary, Fragment, Controller, DateFormat) {
 				this.getView().setModel(oJsonModel, "address");
 			  }.bind(this),
 			  error: function (oError) {
-				console.error("Failed to load address list", oError);
+				console.error("Nem sikerült a címeket betölteni.\n", oError);
 			  }
 			});
+
+			//Fejsor kulcsokat tartalmazó JSONModel
+			var oHeaderModel = new sap.ui.model.json.JSONModel({
+			username: "",
+			zyear: "",
+			zmonth: "",
+			lp: "",
+			status: ""
+			});
+			this.getView().setModel(oHeaderModel, "header");
+
+			const oRouter = UIComponent.getRouterFor(this);
+			oRouter.getRoute("RouteCalendarView").attachPatternMatched(this._onRouteMatched, this);
 		},
 
+
+      
+
+      //Igazából filterezés segítségével jelenítjük meg a megfelelő tételeket az adott fejsorhoz és figyeljük, hogy amibe belenavigáltunk az OPEN státuszú-e
+      _onRouteMatched: function (oEvent) {
+        //Bejövő adatok  
+        var oArgs = oEvent.getParameter("arguments");
+        var sZyear = oArgs.Zyear;
+        var sZmonth = oArgs.Zmonth;
+        var sLicenseplate = oArgs.Licenseplate;
+        var sUsername = oArgs.Username;
+        var sStatus = oArgs.Status;
+        
+        var oHModel = this.getView().getModel("header");
+        oHModel.setProperty("/username", sUsername);
+        oHModel.setProperty("/zyear", sZyear);
+        oHModel.setProperty("/zmonth", sZmonth);
+        oHModel.setProperty("/lp", sLicenseplate);
+        oHModel.setProperty("/status", sStatus);
+      },
+
+
+		//
+		onBack: function() {
+        const oView = this.getView();
+        const oHModel = oView.getModel("header");
+        var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+        oRouter.navTo("RouteItemsView", {
+          Username: oHModel.getProperty("/username"),
+          Zyear: oHModel.getProperty("/zyear"),
+          Zmonth: oHModel.getProperty("/zmonth"),
+          Licenseplate: oHModel.getProperty("/lp"),
+          Status: oHModel.getProperty("/status")
+        });
+      },
+
+		//Naptári eseményre kattintva előugrik egy kis ablak, ami az adott esemény információit mutatja
 		handleAppointmentSelect: function (oEvent) {
 			var oAppointment = oEvent.getParameter("appointment"),
 				oView = this.getView();
@@ -60,19 +108,104 @@ function(coreLibrary, Fragment, Controller, DateFormat) {
 			});
 		},
 
+		//Ha egy napra több esemény van, mint amennyit mutatni tud a naptár, akkor belenavigál az adott napba (nézet váltás)
 		handleMoreLinkPress: function(oEvent) {
 			var oDate = oEvent.getParameter("date"),
 				oSinglePlanningCalendar = this.getView().byId("SPC1");
 
+			if (oDate) {
+				oSinglePlanningCalendar.setStartDate(oDate); // focus on the clicked day
+			}
+
 			oSinglePlanningCalendar.setSelectedView(oSinglePlanningCalendar.getViews()[2]); // DayView
-
-			this.getView().getModel().setData({ startDate: oDate }, true);
 		},
 
-		handleCancel: function (oEvent) {
-			oEvent.getSource().getParent().close();
+		//Kis ablak bezárása
+		handleCancel: function () {
+			var oView = this.getView();
+			var oPopover = oView.byId("detailsPopover");
+			if (oPopover) {
+				oPopover.close();
+			}
 		},
 
+
+
+//************************************************************************************************************************************************************************************************************
+		
+
+
+//Időintervallum választó függvényei...
+		handleDateTimePickerChange: function(oEvent) {
+			var oDateTimePickerStart = this.byId("DTPStartDate"),
+				oDateTimePickerEnd = this.byId("DTPEndDate"),
+				oStartDate = oDateTimePickerStart.getDateValue(),
+				oEndDate = oDateTimePickerEnd.getDateValue(),
+				oErrorState = {errorState: false, errorMessage: ""};
+
+			if (!oStartDate){
+				oErrorState.errorState = true;
+				oErrorState.errorMessage = "Válasszon dátumot!";
+				this._setDateValueState(oDateTimePickerStart, oErrorState);
+			} else if (!oEndDate){
+				oErrorState.errorState = true;
+				oErrorState.errorMessage = "Válasszon dátumot!";
+				this._setDateValueState(oDateTimePickerEnd, oErrorState);
+			} else if (!oEvent.getParameter("valid")){
+				oErrorState.errorState = true;
+				oErrorState.errorMessage = "Érvénytelen dátum!";
+				if (oEvent.getSource() === oDateTimePickerStart){
+					this._setDateValueState(oDateTimePickerStart, oErrorState);
+				} else {
+					this._setDateValueState(oDateTimePickerEnd, oErrorState);
+				}
+			} else if (oStartDate && oEndDate && (oEndDate.getTime() <= oStartDate.getTime())){
+				oErrorState.errorState = true;
+				oErrorState.errorMessage = "A kezdő dátum előbb kell, hogy legyen, mint a záró dátum.";
+				this._setDateValueState(oDateTimePickerStart, oErrorState);
+				this._setDateValueState(oDateTimePickerEnd, oErrorState);
+			} else {
+				this._setDateValueState(oDateTimePickerStart, oErrorState);
+				this._setDateValueState(oDateTimePickerEnd, oErrorState);
+			}
+			
+			this.updateButtonEnabledState(oDateTimePickerStart, oDateTimePickerEnd, this.byId("modifyDialog").getBeginButton());
+		},
+		
+		handleDatePickerChange: function () {
+			var oDatePickerStart = this.byId("DPStartDate"),
+			oDatePickerEnd = this.byId("DPEndDate"),
+			oStartDate = oDatePickerStart.getDateValue(),
+			oEndDate = oDatePickerEnd.getDateValue(),
+			bEndDateBiggerThanStartDate = oEndDate.getTime() < oStartDate.getTime(),
+			oErrorState = {errorState: false, errorMessage: ""};
+
+			if (oStartDate && oEndDate && bEndDateBiggerThanStartDate){
+				oErrorState.errorState = true;
+				oErrorState.errorMessage = "A kezdő dátum előbb kell, hogy legyen, mint a záró dátum.";
+			}
+			this._setDateValueState(oDatePickerStart, oErrorState);
+			this._setDateValueState(oDatePickerEnd, oErrorState);
+			this.updateButtonEnabledState(oDatePickerStart, oDatePickerEnd, this.byId("modifyDialog").getBeginButton());
+		},
+		
+		_setDateValueState: function(oPicker, oErrorState) {
+			if (oErrorState.errorState) {
+				oPicker.setValueState(ValueState.Error);
+				oPicker.setValueStateText(oErrorState.errorMessage);
+			} else {
+				oPicker.setValueState(ValueState.None);
+			}
+		},
+
+		
+		
+//************************************************************************************************************************************************************************************************************
+
+
+
+//Formatterek
+		//Dátum formázás
 		formatDate: function (oDate) {
 			if (oDate) {
 				var iHours = oDate.getHours(),
@@ -86,94 +219,24 @@ function(coreLibrary, Fragment, Controller, DateFormat) {
 				}
 			}
 		},
-
-		_setHoursToZero: function (oDate) {
-			oDate.setHours(0, 0, 0, 0);
-		},
-
-		handleStartDateChange: function (oEvent) {
-			var oStartDate = oEvent.getParameter("date");
-		},
-
-		handleDateTimePickerChange: function(oEvent) {
-			var oDateTimePickerStart = this.byId("DTPStartDate"),
-				oDateTimePickerEnd = this.byId("DTPEndDate"),
-				oStartDate = oDateTimePickerStart.getDateValue(),
-				oEndDate = oDateTimePickerEnd.getDateValue(),
-				oErrorState = {errorState: false, errorMessage: ""};
-
-			if (!oStartDate){
-				oErrorState.errorState = true;
-				oErrorState.errorMessage = "Please pick a date";
-				this._setDateValueState(oDateTimePickerStart, oErrorState);
-			} else if (!oEndDate){
-				oErrorState.errorState = true;
-				oErrorState.errorMessage = "Please pick a date";
-				this._setDateValueState(oDateTimePickerEnd, oErrorState);
-			} else if (!oEvent.getParameter("valid")){
-				oErrorState.errorState = true;
-				oErrorState.errorMessage = "Invalid date";
-				if (oEvent.getSource() === oDateTimePickerStart){
-					this._setDateValueState(oDateTimePickerStart, oErrorState);
-				} else {
-					this._setDateValueState(oDateTimePickerEnd, oErrorState);
-				}
-			} else if (oStartDate && oEndDate && (oEndDate.getTime() <= oStartDate.getTime())){
-				oErrorState.errorState = true;
-				oErrorState.errorMessage = "Start date should be before End date";
-				this._setDateValueState(oDateTimePickerStart, oErrorState);
-				this._setDateValueState(oDateTimePickerEnd, oErrorState);
-			} else {
-				this._setDateValueState(oDateTimePickerStart, oErrorState);
-				this._setDateValueState(oDateTimePickerEnd, oErrorState);
-			}
-
-			this.updateButtonEnabledState(oDateTimePickerStart, oDateTimePickerEnd, this.byId("modifyDialog").getBeginButton());
-		},
-
-		handleDatePickerChange: function () {
-			var oDatePickerStart = this.byId("DPStartDate"),
-				oDatePickerEnd = this.byId("DPEndDate"),
-				oStartDate = oDatePickerStart.getDateValue(),
-				oEndDate = oDatePickerEnd.getDateValue(),
-				bEndDateBiggerThanStartDate = oEndDate.getTime() < oStartDate.getTime(),
-				oErrorState = {errorState: false, errorMessage: ""};
-
-			if (oStartDate && oEndDate && bEndDateBiggerThanStartDate){
-				oErrorState.errorState = true;
-				oErrorState.errorMessage = "Start date should be before End date";
-			}
-			this._setDateValueState(oDatePickerStart, oErrorState);
-			this._setDateValueState(oDatePickerEnd, oErrorState);
-			this.updateButtonEnabledState(oDatePickerStart, oDatePickerEnd, this.byId("modifyDialog").getBeginButton());
-		},
-
-		_setDateValueState: function(oPicker, oErrorState) {
-			if (oErrorState.errorState) {
-				oPicker.setValueState(ValueState.Error);
-				oPicker.setValueStateText(oErrorState.errorMessage);
-			} else {
-				oPicker.setValueState(ValueState.None);
-			}
-		},
-
+		
 		//Honnan, hova cím formázása, hogy ne kódokat lásson a felhasználó
 		formatAddressName: function(code) {
 			var oView = this.getView();
 			var oAddressModel = oView.getModel("address");
-	
+			
 			if (!oAddressModel) return code;
-	
+			
 			var aAddresses = oAddressModel.getProperty("/results");
 			var oMatch = aAddresses.find(function(oAddress) {
 			  return oAddress.SerialNumber === code;
 			});
 			
 			if (oMatch) {
-			  var Country = oMatch.Country || "";
-			  var PostalC = oMatch.PostCode || "";
-			  var City = oMatch.City || "";
-			  var Street = oMatch.Street || "";
+				var Country = oMatch.Country || "";
+				var PostalC = oMatch.PostCode || "";
+				var City = oMatch.City || "";
+				var Street = oMatch.Street || "";
 			  var HouseN = oMatch.HouseNumber || "";
 			  return Country + " " + PostalC + " " + City + ", " + Street + " " + HouseN + ".";
 			}

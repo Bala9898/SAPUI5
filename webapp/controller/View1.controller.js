@@ -404,7 +404,21 @@ sap.ui.define([
         },
 
         onDialogCancel: function () {
-            this._oCreateDialog.close();
+            var that = this;
+
+            MessageBox.confirm(
+            "Biztos elveti a módosításokat?",
+            {
+                title: "Megerősítés",
+                actions: ["Igen", "Nem"],
+                emphasizedAction: "Nem",
+                onClose: function(oAction) {
+                    if (oAction === "Igen") {
+                        that._oCreateDialog.close();
+                    }
+                }
+            }
+        );
         },
         
         onDialogAfterClose: function () {
@@ -530,7 +544,21 @@ sap.ui.define([
                     text: "Mégse",
                     //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                     press: () => {
-                        this._oUpdateDialog.close();
+                        var that = this;
+
+                        MessageBox.confirm(
+                            "Biztos elveti a módosításokat?",
+                            {
+                                title: "Megerősítés",
+                                actions: ["Igen", "Nem"],
+                                emphasizedAction: "Nem",
+                                onClose: function(oAction) {
+                                    if (oAction === "Igen") {
+                                        that._oUpdateDialog.close();
+                                    }
+                                }
+                            }
+                        );
                     }
                 }),
                 //Eltűntetjük, kinullázzuk a dolgokat
@@ -633,7 +661,21 @@ sap.ui.define([
                     text: "Mégse",
                     //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                     press: () => {
-                        this._oReasonDialog.close();
+                        var that = this;
+
+                        MessageBox.confirm(
+                            "Biztos elveti a módosításokat?",
+                            {
+                                title: "Megerősítés",
+                                actions: ["Igen", "Nem"],
+                                emphasizedAction: "Nem",
+                                onClose: function(oAction) {
+                                    if (oAction === "Igen") {
+                                        that._oReasonDialog.close();
+                                    }
+                                }
+                            }
+                        );
                     }
                 }),
                 //Eltűntetjük, kinullázzuk a dolgokat

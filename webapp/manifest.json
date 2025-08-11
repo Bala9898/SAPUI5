@@ -117,7 +117,7 @@
         },
         {
           "name": "RouteCalendarView",
-          "pattern": "Calendar/{Username}/{Zyear}/{Zmonth}/{Licenseplate}",
+          "pattern": "Calendar/{Username}/{Zyear}/{Zmonth}/{Licenseplate}/{Status}",
           "target": "TargetCalendar"
         }
       ],

@@ -5,12 +5,12 @@
 	xmlns:unified="sap.ui.unified"
 	xmlns="sap.m">
 	<VBox id="_IDGenVBox1" class="sapUiSmallMargin">
+		<Button id="calendarBackButton" press="onBack" text="Vissza" type="Emphasized"/>
 		<SinglePlanningCalendar
 			id="SPC1"
 			class="sapUiSmallMarginTop"
 			title= "Naptáram"
 			appointmentSelect="handleAppointmentSelect"
-			headerDateSelect="handleHeaderDateSelect"
 			startDateChange="handleStartDateChange"
 			moreLinkPress="handleMoreLinkPress"
 			startDate="{/ItemSet/Zdate}"
