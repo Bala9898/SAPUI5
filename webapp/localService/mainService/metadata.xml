@@ -10,6 +10,8 @@
                     <PropertyRef Name="Licenseplate"/>
                 </Key>
                 <Property Name="Username" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="Felhasználó" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Notes" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Jegyzet string" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Zcount" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kapcsolódó tétel db szám" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Zyear" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Évszám" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Zmonth" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Hónap" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="Rendszámtábla" sap:updatable="false" sap:sortable="false"/>
@@ -18,7 +20,6 @@
                 <Property Name="AvgFuelPrice" Type="Edm.Decimal" Nullable="false" Precision="6" Scale="1" sap:unicode="false" sap:unit="AvgFuelCurrency" sap:label="Átlagos üzemanyagár" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="AvgFuelCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Üzemanyag átlagár pénznem" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Status" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Státusz" sap:creatable="false" sap:sortable="false"/>
-                <Property Name="Zcount" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Kapcsolódó tétel db szám" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Note" Type="Edm.String" Nullable="false" MaxLength="120" sap:unicode="false" sap:label="Jegyzet" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityType Name="Item" sap:content-version="1">
@@ -30,6 +31,7 @@
                     <PropertyRef Name="Itemid"/>
                 </Key>
                 <Property Name="Username" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="User Name" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Notes" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Megjegyzés az úthoz string" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Zyear" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Útnyilvántartó évszám" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Zmonth" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Month" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
                 <Property Name="Licenseplate" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:label="char007" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
@@ -41,6 +43,20 @@
                 <Property Name="Cost" Type="Edm.String" Nullable="false" MaxLength="7" sap:unicode="false" sap:unit="CostCurrency" sap:label="Útnyilvántartó költség" sap:creatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="CostCurrency" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Currency" sap:creatable="false" sap:sortable="false" sap:filterable="false" sap:semantics="currency-code"/>
                 <Property Name="Note" Type="Edm.String" Nullable="false" MaxLength="120" sap:unicode="false" sap:label="Megjegyzés az úthoz" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZbbvhMonths" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DomvalueL"/>
+                </Key>
+                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZbbvhStatus" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DomvalueL"/>
+                </Key>
+                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
             <EntityType Name="ZbbvhAddresslist" sap:content-version="1">
                 <Key>
@@ -63,27 +79,13 @@
                 <Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="char040" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <Property Name="Consumption" Type="Edm.Decimal" Nullable="false" Precision="5" Scale="2" sap:unicode="false" sap:label="Consumption" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
             </EntityType>
-            <EntityType Name="ZbbvhMonths" sap:content-version="1">
-                <Key>
-                    <PropertyRef Name="DomvalueL"/>
-                </Key>
-                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
-            </EntityType>
-            <EntityType Name="ZbbvhStatus" sap:content-version="1">
-                <Key>
-                    <PropertyRef Name="DomvalueL"/>
-                </Key>
-                <Property Name="DomvalueL" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lower Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
-                <Property Name="Ddtext" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Short Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
-            </EntityType>
             <EntityContainer Name="ZBB_ROAD_REGISTER_PROJECT_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
                 <EntitySet Name="HeaderSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Header" sap:deletable="false" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ItemSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.Item" sap:searchable="true" sap:pageable="false" sap:content-version="1"/>
-                <EntitySet Name="ZbbvhAddresslistSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhAddresslist" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
-                <EntitySet Name="ZbbvhCarsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhCars" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhMonthsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhMonths" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
                 <EntitySet Name="ZbbvhStatusSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhStatus" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZbbvhAddresslistSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhAddresslist" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZbbvhCarsSet" EntityType="ZBB_ROAD_REGISTER_PROJECT_SRV.ZbbvhCars" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
             </EntityContainer>
             <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
             <atom:link rel="self" href="http://35.207.190.137:50000/sap/opu/odata/SAP/ZBB_ROAD_REGISTER_PROJECT_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>

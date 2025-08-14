@@ -59,6 +59,9 @@ function(UIComponent, coreLibrary, Fragment, Controller, DateFormat) {
         oHModel.setProperty("/zmonth", sZmonth);
         oHModel.setProperty("/lp", sLicenseplate);
         oHModel.setProperty("/status", sStatus);
+
+		const startDate = new Date(sZyear, sZmonth - 1, 1);
+		this.byId("SPC1").setStartDate(startDate);
       },
 
 

@@ -64,7 +64,7 @@
                             <Text id="itemZToCell" text="{Zto}"/>
                             <Text id="itemDistanceCell" text="{Distance}"/>
                             <Text id="itemCostCell" text="{ parts: [ { path: 'Cost' }, { path: 'CostCurrency' }], formatter: '.formatHufPrice' }"/>
-                            <Text id="itemNoteCell" text="{Note}"/>
+                            <Text id="itemNoteCell" text="{parts: ['Notes'], formatter: '.truncateNote'}" wrapping="false" tooltip="{Notes}"/>
                         </cells>
                     </ColumnListItem>
                 </items>

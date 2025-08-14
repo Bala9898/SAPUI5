@@ -386,6 +386,7 @@ sap.ui.define([
                 AvgFuelCurrency: sCurr,
                 Status: "OPEN",
                 Note: "",
+                Notes: "",
                 Zcount: 0
             };
         
@@ -518,6 +519,7 @@ sap.ui.define([
                                 AvgFuelCurrency: sCurr,
                                 Status: oCtx.getProperty("Status"),
                                 Note: oCtx.getProperty("Note"),
+                                Notes: oCtx.getProperty("Notes"),
                                 Zcount: oCtx.getProperty("Zcount")
                             };
                             
@@ -630,7 +632,7 @@ sap.ui.define([
                                 AvgFuelPrice: oCtx.getProperty("AvgFuelPrice"),
                                 AvgFuelCurrency: oCtx.getProperty("AvgFuelCurrency"),
                                 Status: sStatus,
-                                Note: sReason,
+                                Notes: sReason,
                                 Zcount: oCtx.getProperty("Zcount")
                             };                            
                                                     

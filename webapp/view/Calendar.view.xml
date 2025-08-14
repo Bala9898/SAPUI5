@@ -13,7 +13,6 @@
 			appointmentSelect="handleAppointmentSelect"
 			startDateChange="handleStartDateChange"
 			moreLinkPress="handleMoreLinkPress"
-			startDate="{/ItemSet/Zdate}"
 			appointments="{path: '/ItemSet'}">
 			<views>
 				<SinglePlanningCalendarMonthView id="_IDGenSinglePlanningCalendarMonthView" key="MonthView" title="Hónap" />

@@ -371,10 +371,10 @@ sap.ui.define([
                       var sTo = this.oInputTo.getValue();
                       var sDate = this.toSAPDateFormat(this.oInputDate.getDateValue());
                       var sDist = this.oInputDistance.getValue();
-                      var sNote = this.oInputNote.getValue();
+                      var sNotes = this.oInputNote.getValue();
                       
                       //Mindennek adatnak kitöltöttnek kell lennie
-                      if (sFrom === "" || sTo === "" || sDate === "" || sDist === "" || sNote === "") {
+                      if (sFrom === "" || sTo === "" || sDate === "" || sDist === "" || sNotes === "") {
                         MessageBox.warning("Kérem minden mezőt töltsön ki.", {
                           title: "Figyelmeztetés"
                         });
@@ -399,7 +399,7 @@ sap.ui.define([
                           Zto: sTo,
                           Zdate: sDate,
                           Distance: sDist,
-                          Note: sNote
+                          Notes: sNotes
                       };
                       
                       // Létrehozás az OData modellen
@@ -477,7 +477,7 @@ sap.ui.define([
                     var sTo = this.oInputTo.getValue();
                     var sDate = this.toSAPDateFormat(this.oInputDate.getDateValue());
                     var sDist = this.oInputDistance.getValue();
-                    var sNote = this.oInputNote.getValue();
+                    var sNotes = this.oInputNote.getValue();
                     
                     //Mindennek adatnak kitöltöttnek kell lennie
                     if (sFrom === "" || sTo === "" || sDate === "" || sDist === "" || sNote === "") {
@@ -505,7 +505,7 @@ sap.ui.define([
                         Zto: sTo,
                         Zdate: sDate,
                         Distance: sDist,
-                        Note: sNote
+                        Notes: sNotes
                     };
                     
                     // Létrehozás az OData modellen
@@ -730,7 +730,13 @@ sap.ui.define([
         }
       
         return code;
-      }
+      },
+
+      //Ne a teljes szöveget mutassa a jegyzetnél
+        truncateNote: function(sText) {
+            if (!sText) return "";
+            return sText.length > 30 ? sText.substring(0, 30) + "..." : sText;
+        }
 
     });
   });
