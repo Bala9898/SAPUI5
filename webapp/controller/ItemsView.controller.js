@@ -5,17 +5,17 @@ sap.ui.define([
   "sap/ui/core/Fragment",
   "sap/m/MessageBox",
   "sap/m/Dialog",
-  "sap/m/TextArea",
   "sap/m/Input",
   "sap/m/library",           
   "sap/m/Label",
   "sap/m/VBox",
+  "sap/m/Text",
   "sap/m/DatePicker",
   "sap/ui/model/Filter",
   "sap/ui/model/FilterOperator",
   "sap/ui/model/FilterType",
   "sap/m/Button"
-], (BaseController, UIComponent, Item, Fragment, MessageBox, Dialog, TextArea, Input, mLibrary, Label, VBox, DatePicker, Filter, FilterOperator, FilterType, Button) => {
+], (BaseController, UIComponent, Item, Fragment, MessageBox, Dialog, Input, mLibrary, Label, VBox, Text, DatePicker, Filter, FilterOperator, FilterType, Button) => {
     "use strict";
     
     const InputType = mLibrary.InputType;
@@ -298,25 +298,42 @@ sap.ui.define([
             showValueHelp: true,
             valueHelpRequest: this.onFromAddressValueHelpRequest.bind(this),
             suggestionItems: {
-                path: "/ZbbvhAddresslistSet",
-                template: new Item({
-                    text: "{SerialNumber}"
-                })
+              path: "/ZbbvhAddresslistSet",
+              template: new Item({
+                key: "{SerialNumber}",
+                text: {
+                  path: "{SerialNumber}",
+                  formatter: ".formatAddressName"
+                }
+              })
             }
-        });            
+        });
+
+        this.oTextFromCode = new Text("fromCodeCreateText", {
+            text: "Cím"
+        });
 
         this.oInputTo = new Input("toCreateInput", {
+          textFormatMode: "KeyValue",
           placeholder: "Kód",
           type: InputType.String,
           showSuggestion: true,
           showValueHelp: true,
           valueHelpRequest: this.onToAddressValueHelpRequest.bind(this),
           suggestionItems: {
-              path: "/ZbbvhAddresslistSet",
-              template: new Item({
-                  text: "{SerialNumber}"
-              })
+            path: "/ZbbvhAddresslistSet",
+            template: new Item({
+              key: "{SerialNumber}",
+              text: {
+                path: "{SerialNumber}",
+                formatter: ".formatAddressName"
+              }
+            })
           }
+        });
+
+        this.oTextToCode = new Text("toCodeCreateText", {
+            text: "Cím"
         });
 
         this.oInputDate = new DatePicker("dateCreateDP", {
@@ -343,8 +360,10 @@ sap.ui.define([
         const oDialogContent = new VBox({
             items: [
                 new Label({ text: "Honnan cím" }),
+                this.oTextFromCode,
                 this.oInputFrom,
                 new Label({ text: "Hova cím" }),
+                this.oTextToCode,
                 this.oInputTo,
                 new Label({ text: "Dátum" }),
                 this.oInputDate,
@@ -358,7 +377,7 @@ sap.ui.define([
         if (f === "c") {
           //Létrehozzuk a felugró ablakot a szövegmezővel
           this._oCreateDialog = new Dialog({
-              title: "Új fejsor létrehozása",
+              title: "Új tételsor létrehozása",
               contentWidth: "400px",
               draggable: true,
               resizable: true,
@@ -423,8 +442,19 @@ sap.ui.define([
                   //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                   press: () => {
                       var that = this;
+                      var b = true;
+                      var sFrom = this.oInputFrom.getValue();
+                      var sTo = this.oInputTo.getValue();
+                      var sDate = this.oInputDate.getDateValue();
+                      var sDist = this.oInputDistance.getValue();
+                      var sNotes = this.oInputNote.getValue();
 
-                      MessageBox.confirm(
+                      if (sFrom === "" && sTo === "" && sDate === oMinDate && sDist === "" && sNotes === "") {
+                        b = false;
+                      }
+
+                      if (b) {
+                        MessageBox.confirm(
                           "Biztos elveti a módosításokat?",
                           {
                               title: "Megerősítés",
@@ -436,7 +466,11 @@ sap.ui.define([
                                   }
                               }
                           }
-                      );
+                        );
+                      }
+                      else {
+                        that._oCreateDialog.close();
+                      }
                   }
               }),
               //Eltűntetjük, kinullázzuk a dolgokat
@@ -456,15 +490,17 @@ sap.ui.define([
             sPath = oCtx.getPath();
 
             this.oInputFrom.setValue(oCtx.getProperty("Zfrom"));
+            this.oTextFromCode.setText(this.formatAddressName(oCtx.getProperty("Zfrom")));
             this.oInputTo.setValue(oCtx.getProperty("Zto"));
+            this.oTextToCode.setText(this.formatAddressName(oCtx.getProperty("Zto")));
             this.oInputDate.setValue(this.formatDateToString(oCtx.getProperty("Zdate")));
             this.oInputDate.setDateValue(oCtx.getProperty("Zdate"));
             this.oInputDistance.setValue(oCtx.getProperty("Distance"));
-            this.oInputNote.setValue(oCtx.getProperty("Note"));
+            this.oInputNote.setValue(oCtx.getProperty("Notes"));
           });
           //Létrehozzuk a felugró ablakot a szövegmezővel
           this._oUpdateDialog = new Dialog({
-            title: "Fejsor módosítása",
+            title: "Tételsor módosítása",
             contentWidth: "400px",
             draggable: true,
             resizable: true,
@@ -480,7 +516,7 @@ sap.ui.define([
                     var sNotes = this.oInputNote.getValue();
                     
                     //Mindennek adatnak kitöltöttnek kell lennie
-                    if (sFrom === "" || sTo === "" || sDate === "" || sDist === "" || sNote === "") {
+                    if (sFrom === "" || sTo === "" || sDate === "" || sDist === "" || sNotes === "") {
                       MessageBox.warning("Kérem minden mezőt töltsön ki.", {
                         title: "Figyelmeztetés"
                       });
@@ -528,21 +564,40 @@ sap.ui.define([
                 text: "Mégse",
                 //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                 press: () => {
-                    var that = this;
+                  var that = this;
+                  var b = true;
+                  var sFrom = this.oInputFrom.getValue();
+                  var sTo = this.oInputTo.getValue();
+                  var sDate = this.oInputDate.getDateValue();
+                  var sDist = this.oInputDistance.getValue();
+                  var sNotes = this.oInputNote.getValue();
 
+                  aSelectedItems.forEach(oItem => {
+                    var oCtx = oItem.getBindingContext();
+
+                    if (sFrom === oCtx.getProperty("Zfrom") && sTo === oCtx.getProperty("Zto") && sDate === oCtx.getProperty("Zdate") && sDist === oCtx.getProperty("Distance") && sNotes === oCtx.getProperty("Notes")) {
+                      b = false;
+                    }
+                  });
+
+                  if (b) {
                     MessageBox.confirm(
-                        "Biztos elveti a módosításokat?",
-                        {
-                            title: "Megerősítés",
-                            actions: ["Igen", "Nem"],
-                            emphasizedAction: "Nem",
-                            onClose: function(oAction) {
-                                if (oAction === "Igen") {
-                                    that._oUpdateDialog.close();
-                                }
-                            }
-                        }
+                      "Biztos elveti a módosításokat?",
+                      {
+                          title: "Megerősítés",
+                          actions: ["Igen", "Nem"],
+                          emphasizedAction: "Nem",
+                          onClose: function(oAction) {
+                              if (oAction === "Igen") {
+                                  that._oUpdateDialog.close();
+                              }
+                          }
+                      }
                     );
+                  }
+                  else {
+                    that._oUpdateDialog.close();
+                  }
                 }
             }),
             //Eltűntetjük, kinullázzuk a dolgokat
@@ -631,6 +686,7 @@ sap.ui.define([
           return;
         }
         this.oInputFrom.setValue(oSelectedItem.getDescription());
+        this.oTextFromCode.setText(oSelectedItem.getTitle());
       },
 
       onToAddressValueHelpClose: function (oEvent) {
@@ -640,6 +696,8 @@ sap.ui.define([
         if (!oSelectedItem) {
           return;
         }
+
+        this.oTextToCode.setText(oSelectedItem.getTitle());
         this.oInputTo.setValue(oSelectedItem.getDescription());
       },
 

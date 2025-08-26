@@ -57,6 +57,14 @@ sap.ui.define([
             //Adatok megszerezése
             var oView = this.getView();
             var oFilterModel = oView.getModel("filters");
+            var oChangeModel = oView.getModel("change");
+            oChangeModel.setProperty("status", "OPEN");
+            oChangeModel.setProperty("zmonth", "01");
+            this.byId("lpInput").setValue("");
+            this.byId("StatusS").setSelectedKey("OPEN");
+            this.byId("ZyearDP").setValue("");
+            this.byId("ZmonthS").setSelectedKey("01");
+
             oFilterModel.setProperty("/status", "");
             oFilterModel.setProperty("/zyear", "");
             oFilterModel.setProperty("/zmonth", "");
@@ -307,8 +315,8 @@ sap.ui.define([
                     break;
                 case "lp":
                     var lKey = oView.byId("lpInput").getValue().toUpperCase();
-                    oFilterModel.setProperty("/lp", lKey);
-                    sLicenseplate = oFilterModel.getProperty("/lp");
+                    oFilterModel.setProperty("/licenseplate", lKey);
+                    sLicenseplate = oFilterModel.getProperty("/licenseplate");
                     break;
                 default:
                     break;
@@ -406,20 +414,35 @@ sap.ui.define([
 
         onDialogCancel: function () {
             var that = this;
+            var b = true;
+            const sY = this.byId("inputYear").getValue();
+            const sM = this.byId("inputMonth").getSelectedKey();
+            const sLp = this.byId("lpCreateInput").getValue().toUpperCase();
+            const iKm = this.byId("inputKmStart").getValue();
+            let fAvg = this.byId("inputAvgPrice").getValue();
+            const sCurr = this.byId("inputCurr").getSelectedKey();
 
-            MessageBox.confirm(
-            "Biztos elveti a módosításokat?",
-            {
-                title: "Megerősítés",
-                actions: ["Igen", "Nem"],
-                emphasizedAction: "Nem",
-                onClose: function(oAction) {
-                    if (oAction === "Igen") {
-                        that._oCreateDialog.close();
-                    }
-                }
+            if (sY === "" && sM === "01" && sLp === "" && iKm === "" && fAvg === "" && sCurr === "HUF") {
+                b = false;
             }
-        );
+
+            if (b) {
+                MessageBox.confirm(
+                "Biztos elveti a módosításokat?",
+                {
+                    title: "Megerősítés",
+                    actions: ["Igen", "Nem"],
+                    emphasizedAction: "Nem",
+                    onClose: function(oAction) {
+                        if (oAction === "Igen") {
+                            that._oCreateDialog.close();
+                        }
+                    }
+                });
+            }
+            else {
+                that._oCreateDialog.close();
+            }
         },
         
         onDialogAfterClose: function () {
@@ -455,6 +478,19 @@ sap.ui.define([
                     new Item({ key: "EUR", text: "EUR" }),
                     new Item({ key: "USD", text: "USD" })
                 ]
+            });
+
+            aSelected.forEach(oItem => {
+                var oCtx = oItem.getBindingContext();
+                
+                this.oInputKmStart.setValue(oCtx.getProperty("KmStart"));
+                this.oSelectCurr.setSelectedKey(oCtx.getProperty("AvgFuelCurrency"));
+                if (oCtx.getProperty("AvgFuelCurrency") === "HUF") {
+                    this.oInputAvgPrice.setValue(oCtx.getProperty("AvgFuelPrice")/100);
+                }
+                else {
+                    this.oInputAvgPrice.setValue(oCtx.getProperty("AvgFuelPrice"));
+                }
             });
 
             //Content létrehozása a dialoghoz
@@ -547,20 +583,43 @@ sap.ui.define([
                     //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                     press: () => {
                         var that = this;
+                        var b = false;
+                        var price;
 
-                        MessageBox.confirm(
-                            "Biztos elveti a módosításokat?",
-                            {
-                                title: "Megerősítés",
-                                actions: ["Igen", "Nem"],
-                                emphasizedAction: "Nem",
-                                onClose: function(oAction) {
-                                    if (oAction === "Igen") {
-                                        that._oUpdateDialog.close();
+                        aSelected.forEach(oItem => {
+                           var oCtx = oItem.getBindingContext();
+            
+                           if (oCtx.getProperty("AvgFuelCurrency") === "HUF") {
+                                price = oCtx.getProperty("AvgFuelPrice")/100;
+                            }
+                            else {
+                                price = oCtx.getProperty("AvgFuelPrice");
+                            }
+
+                            if (!(Number(this.oInputKmStart.getValue()) === oCtx.getProperty("KmStart") && 
+                            this.oSelectCurr.getSelectedKey() === oCtx.getProperty("AvgFuelCurrency") && price === Number(this.oInputAvgPrice.getValue()))) {
+                                b = true;
+                            }
+                        });
+
+                        if (b) {
+                            MessageBox.confirm(
+                                "Biztos elveti a módosításokat?",
+                                {
+                                    title: "Megerősítés",
+                                    actions: ["Igen", "Nem"],
+                                    emphasizedAction: "Nem",
+                                    onClose: function(oAction) {
+                                        if (oAction === "Igen") {
+                                            that._oUpdateDialog.close();
+                                        }
                                     }
                                 }
-                            }
-                        );
+                            );
+                        }
+                        else {
+                            that._oUpdateDialog.close();
+                        }
                     }
                 }),
                 //Eltűntetjük, kinullázzuk a dolgokat
@@ -664,20 +723,30 @@ sap.ui.define([
                     //Ha nem fogadjuk el, akkor csak záródjon be a kis ablak
                     press: () => {
                         var that = this;
+                        var b = true;
 
-                        MessageBox.confirm(
-                            "Biztos elveti a módosításokat?",
-                            {
-                                title: "Megerősítés",
-                                actions: ["Igen", "Nem"],
-                                emphasizedAction: "Nem",
-                                onClose: function(oAction) {
-                                    if (oAction === "Igen") {
-                                        that._oReasonDialog.close();
+                        if (oTextArea.getValue() === "") {
+                            b = false;
+                        }
+
+                        if (b) {
+                            MessageBox.confirm(
+                                "Biztos elveti a módosításokat?",
+                                {
+                                    title: "Megerősítés",
+                                    actions: ["Igen", "Nem"],
+                                    emphasizedAction: "Nem",
+                                    onClose: function(oAction) {
+                                        if (oAction === "Igen") {
+                                            that._oReasonDialog.close();
+                                        }
                                     }
                                 }
-                            }
-                        );
+                            );
+                        }
+                        else {
+                            that._oReasonDialog.close();
+                        }
                     }
                 }),
                 //Eltűntetjük, kinullázzuk a dolgokat

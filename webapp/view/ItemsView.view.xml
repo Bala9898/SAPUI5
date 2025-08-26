@@ -18,9 +18,9 @@
                 <!--Fejléc létrehozása tételek felvételére, módosítására és létrehozására-->
                 <headerToolbar>
                     <Toolbar id="itemToolbar">
+                        <Button id="itemBackButton" text="Vissza" press="onBack" type="Emphasized"/>
                         <Title id="itemTitle" text="Tételek:" level="H2"/>
                         <Label id="headdataLabel" text="Rendszám: {header>/lp}, időintervallum: {header>/zyear}.{header>/zmonth}"/>
-                        <Button id="itemBackButton" text="Vissza" press="onBack"/>
                         <ToolbarSpacer id="itemToolbarSpacer1"/>
                         <Button id="itemCalendarButton" text="Naptár" press="onCalendar" type="Neutral"/>
                         <ToolbarSpacer id="itemToolbarSpacer"/>
