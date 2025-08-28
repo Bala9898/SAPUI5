@@ -30,7 +30,7 @@
 			<Label id="_IDGenLabel"
 					text="Jegyzet az útról"
 					labelFor="Note"/>
-			<Text id="_IDGenText" text="{Note}"/>
+			<Text id="_IDGenText" text="{Notes}"/>
 		</f:SimpleForm>
 	</ResponsivePopover>
 </core:FragmentDefinition>
