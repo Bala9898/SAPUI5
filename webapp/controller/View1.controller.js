@@ -34,8 +34,8 @@ sap.ui.define([
             this.getView().setModel(oFilterModel, "filters");
 
             var oChangeModel = new sap.ui.model.json.JSONModel({
-                status: "OPEN",
-                zmonth: "01"
+                status: "DUMMY",
+                zmonth: "00"
             });
             this.getView().setModel(oChangeModel, "change");
 
@@ -58,12 +58,12 @@ sap.ui.define([
             var oView = this.getView();
             var oFilterModel = oView.getModel("filters");
             var oChangeModel = oView.getModel("change");
-            oChangeModel.setProperty("status", "OPEN");
-            oChangeModel.setProperty("zmonth", "01");
+            oChangeModel.setProperty("status", "DUMMY");
+            oChangeModel.setProperty("zmonth", "00");
             this.byId("lpInput").setValue("");
-            this.byId("StatusS").setSelectedKey("OPEN");
+            this.byId("StatusS").setSelectedKey("DUMMY");
             this.byId("ZyearDP").setValue("");
-            this.byId("ZmonthS").setSelectedKey("01");
+            this.byId("ZmonthS").setSelectedKey("00");
 
             oFilterModel.setProperty("/status", "");
             oFilterModel.setProperty("/zyear", "");
@@ -300,7 +300,12 @@ sap.ui.define([
             switch (f) {
                 case "status":
                     var sKey = oView.byId("StatusS").getSelectedKey();
-                    oFilterModel.setProperty("/status", sKey);
+                    if (sKey === "DUMMY") {
+                        oFilterModel.setProperty("/status", "");
+                    }
+                    else {
+                        oFilterModel.setProperty("/status", sKey);
+                    }
                     oStatus = oFilterModel.getProperty("/status");
                     break;
                 case "zyear":
@@ -310,7 +315,12 @@ sap.ui.define([
                     break;
                 case "zmonth":
                     var mKey = oView.byId("ZmonthS").getSelectedKey();
-                    oFilterModel.setProperty("/zmonth", mKey);
+                    if (mKey === "00") {
+                        oFilterModel.setProperty("/zmonth", "");
+                    }
+                    else {
+                        oFilterModel.setProperty("/zmonth", mKey);
+                    }
                     oZmonth= oFilterModel.getProperty("/zmonth");
                     break;
                 case "lp":
